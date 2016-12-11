@@ -1,4 +1,4 @@
-;;; flycheck-swift3.el --- Flycheck: Swift support
+;;; flycheck-swift3.el --- Flycheck: Swift support for Apple swift-mode
 
 ;; Copyright (c) 2016 GyazSquare Inc.
 
