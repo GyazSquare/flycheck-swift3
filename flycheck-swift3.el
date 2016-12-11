@@ -208,7 +208,9 @@ See URL `https://swift.org/'."
   :command (flycheck-swift3--syntax-checking-command)
   :standard-input t
   :error-patterns
-  '((info line-start (or "<stdin>" (file-name)) ":" line ":" column
+  '((error line-start "<unknown>:" line
+           ": " (or "fatal error" "error") ": " (optional (message)) line-end)
+    (info line-start (or "<stdin>" (file-name)) ":" line ":" column
           ": note: " (optional (message)) line-end)
     (warning line-start (or "<stdin>" (file-name)) ":" line ":" column
              ": warning: " (optional (message)) line-end)
