@@ -4,7 +4,7 @@
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 1.0.0
+;; Version: 1.0.1
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "24.4") (flycheck "26"))
 
@@ -201,7 +201,7 @@ input files using `DIRECTORY' as the default directory."
           (append xcrun-command command))
       command)))
 
-(flycheck-define-command-checker 'swift
+(flycheck-define-command-checker 'swift3
   "A Swift syntax checker using Swift compiler frontend.
 
 See URL `https://swift.org/'."
@@ -219,7 +219,7 @@ See URL `https://swift.org/'."
 ;;;###autoload
 (defun flycheck-swift3-setup ()
   "Set up Flycheck for Swift."
-  (add-to-list 'flycheck-checkers 'swift))
+  (add-to-list 'flycheck-checkers 'swift3))
 
 (provide 'flycheck-swift3)
 
