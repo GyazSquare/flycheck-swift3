@@ -192,7 +192,9 @@ input files using `DIRECTORY' as the default directory."
                     (remove file-name (flycheck-swift3--expand-inputs
                                        flycheck-swift3-inputs
                                        (file-name-directory file-name)))))
-            "-primary-file" source)))
+            "-primary-file"
+            ;; Read from standard input
+            "-")))
     (if xcrun-path
         (let ((xcrun-command
                `(,xcrun-path
