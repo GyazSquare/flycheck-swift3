@@ -4,7 +4,7 @@
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 1.0.2
+;; Version: 1.0.3
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "24.4") (flycheck "26"))
 
@@ -192,7 +192,9 @@ input files using `DIRECTORY' as the default directory."
                     (remove file-name (flycheck-swift3--expand-inputs
                                        flycheck-swift3-inputs
                                        (file-name-directory file-name)))))
-            "-primary-file" source)))
+            "-primary-file"
+            ;; Read from standard input
+            "-")))
     (if xcrun-path
         (let ((xcrun-command
                `(,xcrun-path
