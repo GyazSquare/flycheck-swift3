@@ -2,6 +2,15 @@
 
 A Swift syntax checker using Swift compiler frontend.
 
+Flycheck-swift3 is designed to work with Apple [swift-mode.el](https://github.com/apple/swift/blob/master/utils/swift-mode.el) in the [main Swift repository](https://github.com/apple/swift/).
+
+## Features
+
+* Apple [swift-mode.el](https://github.com/apple/swift/blob/master/utils/swift-mode.el) support
+* Apple Swift 3 support  
+  If you use the toolchain option, you can use Swift 2.x.
+* The `xcrun` command support (only on macOS)
+
 ## Requirements
 
 * Apple Emacs Lisp files for Swift
