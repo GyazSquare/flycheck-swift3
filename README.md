@@ -28,8 +28,8 @@ In your `init.el`:
 
 ```elisp
 (require 'flycheck-swift3) ; Not necessary if using ELPA package
-(eval-after-load 'flycheck
-  '(add-hook 'flycheck-mode-hook #'flycheck-swift3-setup))
+(with-eval-after-load 'flycheck
+  (add-hook 'flycheck-mode-hook #'flycheck-swift3-setup))
 ```
 
 ## License
