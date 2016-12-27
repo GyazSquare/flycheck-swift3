@@ -221,13 +221,13 @@ See URL `https://swift.org/'."
   :standard-input t
   :error-patterns
   '((error line-start "<unknown>:" line
-           ": error: " (optional (message)) line-end)
+           ": " "error: " (optional (message)) line-end)
     (info line-start (or "<stdin>" (file-name)) ":" line ":" column
-          ": note: " (optional (message)) line-end)
+          ": " "note: " (optional (message)) line-end)
     (warning line-start (or "<stdin>" (file-name)) ":" line ":" column
-             ": warning: " (optional (message)) line-end)
+             ": " "warning: " (optional (message)) line-end)
     (error line-start (or "<stdin>" (file-name)) ":" line ":" column
-           ": " (or "fatal error" "error") ": " (optional (message)) line-end))
+           ": " "error: " (optional (message)) line-end))
   :modes 'swift-mode)
 
 ;;;###autoload
