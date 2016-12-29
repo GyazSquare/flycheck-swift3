@@ -1,5 +1,10 @@
 # flycheck-swift3
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![MELPA](https://melpa.org/packages/flycheck-swift3-badge.svg)](https://melpa.org/#/flycheck-swift3)
+[![MELPA Stable](https://stable.melpa.org/packages/flycheck-swift3-badge.svg)](https://stable.melpa.org/#/flycheck-swift3)
+[![Build Status](https://api.travis-ci.org/GyazSquare/flycheck-swift3.svg?branch=master)](https://travis-ci.org/GyazSquare/flycheck-swift3)
+
 A Swift syntax checker using Swift compiler frontend.
 
 Flycheck-swift3 is designed to work with Apple [swift-mode.el](https://github.com/apple/swift/blob/master/utils/swift-mode.el) in the [main Swift repository](https://github.com/apple/swift/).
