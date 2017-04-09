@@ -1,4 +1,7 @@
 language: emacs-lisp
+osx_image:
+- xcode8.2
+- xcode8.3
 env:
 - EMACS_VERSION=24.4
 - EMACS_VERSION=24.5
@@ -8,11 +11,6 @@ matrix:
   allow_failures:
   - env:EMACS_VERSION=snapshot
   fast_finish: true
-  include:
-  - os: osx
-    osx_image: xcode8.2
-  - os: osx
-    osx_image: xcode8.3
 cache:
   directories:
   - .cask
