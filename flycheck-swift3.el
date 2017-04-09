@@ -145,8 +145,25 @@ When non-nil, set the input files to parse."
   :type '(repeat (string :tag "Input file"))
   :safe #'flycheck-string-list-p)
 
+(defun flycheck-swift3--swiftc-version (xcrun-path)
+  "Return the swiftc version.
+
+If `XCRUN-PATH' exists, return the swiftc version using
+`'${XCRUN-PATH} swiftc --version'."
+  (let* ((command
+          (if xcrun-path
+              (mapconcat #'identity `(,xcrun-path "swiftc" "--version") " ")
+            (mapconcat #'identity `("swiftc" "--version") " ")))
+         (version-info-list (delete "" (split-string
+                                        (shell-command-to-string command)
+                                        "[ \f\t\n\r\v():]+")))
+         (versions (seq-filter
+                    (lambda (elt) (string-match "^[0-9][-.0-9A-Za-z]*$" elt))
+                    version-info-list)))
+    (car versions)))
+
 (defun flycheck-swift3--swift-sdk-path (xcrun-path xcrun-sdk)
-  "Return the the swift SDK path.
+  "Return the swift SDK path.
 
 If `flycheck-swift3-sdk-path' is nil and xcrun exists, return the
 swift SDK path using `${XCRUN-PATH} --sdk ${XCRUN-SDK}
@@ -186,7 +203,9 @@ input files using `DIRECTORY' as the default directory."
          (command
           `("swiftc"
             "-frontend"
-            "-parse"
+            (eval (if (version<
+                       (flycheck-swift3--swiftc-version ,xcrun-path) "3.1")
+                      "-parse" "-typecheck"))
             (option-list "-D" flycheck-swift3-conditional-compilation-flags)
             (option-list "-F" flycheck-swift3-framework-search-paths)
             (option-list "-I" flycheck-swift3-import-search-paths)
