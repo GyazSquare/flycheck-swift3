@@ -7,7 +7,7 @@ env:
 matrix:
   allow_failures:
   - env:EMACS_VERSION=snapshot
-  falst_finish: true
+  fast_finish: true
   include:
   - os: osx
     osx_image: xcode8.2
