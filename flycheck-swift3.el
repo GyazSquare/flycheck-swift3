@@ -1,10 +1,10 @@
 ;;; flycheck-swift3.el --- Flycheck: Swift support for Apple swift-mode
 
-;; Copyright (c) 2016 GyazSquare Inc.
+;; Copyright (c) 2016-2017 GyazSquare Inc.
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 1.0.8
+;; Version: 1.1.0
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "24.4") (flycheck "26"))
 
@@ -42,7 +42,7 @@
 ;; Features:
 ;;
 ;; - Apple swift-mode.el support
-;; - Apple Swift 3 support
+;; - Apple Swift 3.1 support
 ;;   If you use the toolchain option, you can use Swift 2.x.
 ;; - The `xcrun' command support (only on macOS)
 ;;
