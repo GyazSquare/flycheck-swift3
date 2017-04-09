@@ -1,7 +1,5 @@
 language: emacs-lisp
-osx_image:
-- xcode8.2
-- xcode8.3
+osx_image: xcode8.3
 env:
 - EMACS_VERSION=24.4
 - EMACS_VERSION=24.5
@@ -17,9 +15,9 @@ cache:
 before_install:
 - export PATH="$HOME/bin:$PATH"
 - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
-- if [[ -n $EMACS_VERSION ]]; then make -f emacs-travis.mk install_emacs; fi
-- if [[ -n $EMACS_VERSION ]]; then make -f emacs-travis.mk install_cask; fi
-- if [[ -n $EMACS_VERSION ]]; then emacs --version; fi
+- make -f emacs-travis.mk install_emacs
+- make -f emacs-travis.mk install_cask
+- emacs --version
 script:
 - make test
 notifications:
