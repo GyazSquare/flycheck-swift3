@@ -138,7 +138,7 @@ C/C++/Objective-C compiler, via `-Xcc'."
   :type '(repeat (string :tag "Argument"))
   :safe #'flycheck-string-list-p)
 
-(flycheck-def-option-var flycheck-swift3-inputs nil swfit
+(flycheck-def-option-var flycheck-swift3-inputs nil swift
   "Specifies input files to parse.
 
 When non-nil, set the input files to parse."
