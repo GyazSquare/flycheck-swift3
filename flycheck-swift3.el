@@ -182,6 +182,12 @@ swift SDK path using `${XCRUN-PATH} --sdk ${XCRUN-SDK}
                      " "))))
              (string-trim (shell-command-to-string command))))))
 
+(defun flycheck-swift3--list-swift-files (directory)
+  "Return list of full paths to swift files in the specified DIRECTORY."
+  (seq-filter
+   (lambda (elt) (eq 0 (string-match-p "[^\.].*" (file-name-nondirectory elt))))
+   (directory-files directory t ".*\.swift$")))
+
 (defun flycheck-swift3--expand-inputs (inputs &optional directory)
   "Return the expanded inputs.
 
@@ -217,10 +223,10 @@ input files using `DIRECTORY' as the default directory."
             (option "-target" flycheck-swift3-target)
             (option "-import-objc-header" flycheck-swift3-import-objc-header)
             (option-list "-Xcc" flycheck-swift3-xcc-args)
-            (eval (let ((file-name (or load-file-name buffer-file-name)))
-                    (remove file-name (flycheck-swift3--expand-inputs
-                                       flycheck-swift3-inputs
-                                       (file-name-directory file-name)))))
+            (eval (let* ((file-name (or load-file-name buffer-file-name))
+                         (directory-name (file-name-directory file-name)))
+                    (remove file-name (or (flycheck-swift3--expand-inputs flycheck-swift3-inputs directory-name)
+                                          (flycheck-swift3--list-swift-files directory-name)))))
             "-primary-file"
             ;; Read from standard input
             "-")))
