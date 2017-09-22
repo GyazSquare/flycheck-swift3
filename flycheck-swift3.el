@@ -82,6 +82,15 @@ When non-nil, add the specified conditional compilation flags via
   :type '(repeat (string :tag "Conditional compilation flag"))
   :safe #'flycheck-string-list-p)
 
+(flycheck-def-option-var flycheck-swift3-system-framework-search-paths nil swift
+  "Add directory to system framework search paths.
+
+When non-nil, add the specified directory to the search path for
+system framework include files, via `-Fsystem'.
+The option is available in Swift 4.0 or later."
+  :type '(repeat (directory :tag "System Framework directory"))
+  :safe #'flycheck-string-list-p)
+
 (flycheck-def-option-var flycheck-swift3-framework-search-paths nil swift
   "Add directory to framework search paths.
 
@@ -207,6 +216,8 @@ input files using `DIRECTORY' as the default directory."
                        (flycheck-swift3--swiftc-version ,xcrun-path) "3.1")
                       "-parse" "-typecheck"))
             (option-list "-D" flycheck-swift3-conditional-compilation-flags)
+            (option-list "-Fsystem"
+                         flycheck-swift3-system-framework-search-paths)
             (option-list "-F" flycheck-swift3-framework-search-paths)
             (option-list "-I" flycheck-swift3-import-search-paths)
             (option "-module-name" flycheck-swift3-module-name)
