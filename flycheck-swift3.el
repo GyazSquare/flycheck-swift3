@@ -54,6 +54,26 @@
 ;;; Code:
 
 (require 'flycheck)
+(require 'xcode-project)
+
+(defcustom flycheck-swift3-use-xcode-project t
+  "Specifies whether to use the `xcode-project' package to parse project settings.
+
+When non-nil, project settings (SDK, compilation flags, source files etc) will
+be obtained from the Xcode project associated with the current buffer's source
+file.
+
+If nil, or no Xcode project can be found, then fall back to the `flycheck-swift3' defaults."
+  :group 'flycheck-swift3
+  :type 'bool
+  :safe #'booleanp)
+
+(defcustom flycheck-swift3-xcode-build-config "Debug"
+  "Build configuration to use when extracting build settings from the Xcode project."
+
+  :group 'flycheck-swift3
+  :type 'string
+  :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-xcrun-sdk nil swift
   "Specifies which SDK to search for tools.
@@ -107,14 +127,14 @@ When non-nil, set the name of the module to build, via
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-sdk-path nil swift
-  "Default SDK if one cannot be inferred from the current buffer's Xcode project.
+  "Default SDK path if one cannot be inferred from the current buffer's Xcode project.
 
 When non-nil, set the SDK path to compile against, via `-sdk'."
   :type '(directory :tag "SDK path")
   :safe #'stringp)
 
-(flycheck-def-option-var flycheck-swift3-target nil swift
-  "Default target if one cannot be inferred from the current buffer's Xcode project."
+(flycheck-def-option-var flycheck-swift3-platform-target nil swift
+  "Default platform target if one cannot be inferred from the current buffer's Xcode project."
   :type 'string
   :safe #'stringp)
 
@@ -162,25 +182,14 @@ If `XCRUN-PATH' exists, return the swiftc version using
                     version-info-list)))
     (car versions)))
 
-(defun flycheck-swift3--swift-sdk-path (xcrun-path xcrun-sdk)
-  "Return the swift SDK path.
-
-If `flycheck-swift3-sdk-path' is nil and xcrun exists, return the
-swift SDK path using `${XCRUN-PATH} --sdk ${XCRUN-SDK}
---show-sdk-path'."
-  (or flycheck-swift3-sdk-path
-      (and xcrun-path
-           (let ((command
-                  (if xcrun-sdk
-                      (mapconcat
-                       #'identity
-                       `(,xcrun-path "--sdk" ,xcrun-sdk "--show-sdk-path")
-                       " ")
-                    (mapconcat
-                     #'identity
-                     `(,xcrun-path "--show-sdk-path")
-                     " "))))
-             (string-trim (shell-command-to-string command))))))
+(defun flycheck-swift3--xcrun-sdk-path (xcrun-path &optional xcrun-sdk)
+  "Return the swift SDK path using `${XCRUN-PATH} --sdk ${XCRUN-SDK} --show-sdk-path'."
+  (when xcrun-path
+    (let ((command
+           (if xcrun-sdk
+               (mapconcat #'identity `(,xcrun-path "--sdk" ,xcrun-sdk "--show-sdk-path") " ")
+             (mapconcat #'identity `(,xcrun-path "--show-sdk-path") " "))))
+      (string-trim (shell-command-to-string command)))))
 
 (defun flycheck-swift3--list-swift-files (directory)
   "Return list of full paths to swift files in the specified DIRECTORY."
@@ -188,102 +197,121 @@ swift SDK path using `${XCRUN-PATH} --sdk ${XCRUN-SDK}
    (lambda (elt) (eq 0 (string-match-p "[^\.].*" (file-name-nondirectory elt))))
    (directory-files directory t ".*\.swift$")))
 
-(defun flycheck-swift3--find-xcodeproj (directory-or-file)
-  "Search DIRECTORY-OR-FILE and parent directories for an Xcode project file.
-Returns the path to the Xcode project, or nil if not found."
-  (if directory-or-file
-      (let (xcodeproj
-            (directory (if (file-directory-p directory-or-file)
-                           directory-or-file
-                         (file-name-directory directory-or-file))))
-        (setq directory (expand-file-name directory))
-        (while (and (eq xcodeproj nil) (not (equal directory "/")))
-          (setq xcodeproj (directory-files directory t ".*\.xcodeproj$"))
-          (setq directory (file-name-directory (directory-file-name directory))))
-        (car xcodeproj))))
+(defvar flycheck-swift3--cache-directory nil
+  "The cache directory for `flycheck-swift3'.")
 
-(defvar-local flycheck-swift3--xcode-build-settings-cache nil
-  "An alist mapping Xcode projects (path) to build settings.
-This avoids called 'xcodebuild' more than once.
-To force a reload of the cache just set this variable to nil.")
+(defun flycheck-swift3--cache-location ()
+  "Get the cache location for `flycheck-swift3'.
 
-(defun flycheck-swift3--xcodeproj-modtime (xcodeproj)
-  "Return the modification time for XCODEPROJ."
-  (setq xcodeproj (expand-file-name xcodeproj))
-  (if (file-directory-p xcodeproj)
-      (nth 5 (file-attributes (concat (file-name-as-directory xcodeproj) "project.pbxproj")))))
+If no cache directory exists yet, create one and return it.
+Otherwise return the previously used cache directory."
+  (setq flycheck-swift3--cache-directory
+        (or flycheck-swift3--cache-directory
+            ;; Note: we can't use flycheck-temp-dir-system because the temp dir
+            ;; will be destroyed after each run of the checker...
+            (make-temp-file flycheck-temp-prefix 'directory))))
 
-(defun flycheck-swift3--get-xcode-build-settings-cache (xcodeproj)
-  "Return the build settings cache for XCODEPROJ.
+(defun flycheck-swift3--cache-cleanup ()
+  "Cleanup `flycheck-swift3' cache directory."
+  (when (and flycheck-swift3--cache-directory
+             (file-directory-p flycheck-swift3--cache-directory))
+    (flycheck-safe-delete flycheck-swift3--cache-directory))
+  (setq flycheck-swift3--cache-directory nil))
+
+;; Clean-up cache directories
+(add-hook 'kill-emacs-hook #'flycheck-swift3--cache-cleanup)
+
+(defun flycheck-swift3--xcodeproj-modtime (xcproj-path)
+  "Return the modification time for XCPROJ-PATH."
+  (setq xcproj-path (expand-file-name xcproj-path))
+  (if (and xcproj-path (file-directory-p xcproj-path))
+      (nth 5 (file-attributes (concat (file-name-as-directory xcproj-path) "project.pbxproj")))))
+
+(defun flycheck-swift3--xcodeproj-cache-path (xcproj-path)
+  "Return the cache path for the specified XCPROJ-PATH."
+  (when (and xcproj-path (file-directory-p xcproj-path))
+    (format "%s/%s-%s" (flycheck-swift3--cache-location)
+            (file-name-nondirectory xcproj-path)
+            (time-to-seconds (flycheck-swift3--xcodeproj-modtime xcproj-path)))))
+
+(defun flycheck-swift3--read-xcode-project-cache (xcproj-path)
+  "Return the project cache for XCPROJ-PATH.
 Return nil if the cache is not found, or the modification time of the project has changed."
-  (setq xcodeproj (expand-file-name xcodeproj))
-  (if (file-directory-p xcodeproj)
-      (when-let ((cache (cadr (assoc xcodeproj flycheck-swift3--xcode-build-settings-cache))))
-        (let ((modtime (flycheck-swift3--xcodeproj-modtime xcodeproj)))
-          (if (equal modtime (car cache))
-              (cadr cache))))))
+  (when-let (cache-path (flycheck-swift3--xcodeproj-cache-path xcproj-path))
+    (when (file-exists-p cache-path)
+      (xcode-project-deserialize cache-path))))
 
-(defun flycheck-swift3--set-xcode-build-settings-cache (xcodeproj build-settings)
-  "Set the build settings cache for XCODEPROJ to BUILD-SETTINGS."
-  (setq xcodeproj (expand-file-name xcodeproj))
-  (if (file-directory-p xcodeproj)
-      (let ((modtime (flycheck-swift3--xcodeproj-modtime xcodeproj)))
-        (push (list xcodeproj (list modtime build-settings)) flycheck-swift3--xcode-build-settings-cache))))
+(defun flycheck-swift3--write-xcode-project-cache (proj xcproj-path)
+  "Cache the parsed project PROJ for XCPROJ-PATH."
+  (when-let (cache-path (flycheck-swift3--xcodeproj-cache-path xcproj-path))
+    (ignore-errors (xcode-project-serialize proj cache-path))))
 
-(defun flycheck-swift3--get-xcode-build-settings (xcodeproj xcrun-path)
-  "Return the build settings for the specified XCODEPROJ file."
-  (setq xcodeproj (expand-file-name xcodeproj))
-  (let ((build-settings (flycheck-swift3--get-xcode-build-settings-cache xcodeproj)))
-    (unless build-settings
-      (if (and (file-directory-p xcodeproj) xcrun-path)
-          ;; Note: closing stderr so we don't have to deal with error messages.
-          (let* ((command (format "%s xcodebuild -showBuildSettings -project \"%s\" 2>&- | grep -F '='" xcrun-path xcodeproj))
-                 (lines (shell-command-to-string command)))
-              (if (string-empty-p lines)
-                  (setq lines nil)
-                (setq lines (split-string (string-trim lines) "\n")))
-              (while lines
-                (let* ((kv (split-string (car lines) "="))
-                       (key (string-trim (car kv)))
-                       (value (string-trim (cadr kv))))
-                  (if (and key value)
-                      ;; Use 'list' to evaluate key & value
-                      (push (list key value) build-settings)))
-                (setq lines (cdr lines)))
-              (if build-settings
-                  (flycheck-swift3--set-xcode-build-settings-cache xcodeproj build-settings)))))
-    build-settings))
+(defun flycheck-swift3--load-xcode-project (xcproj-path)
+  "Load and return the Xcode project found at XCPROJ-PATH.
 
-(defun flycheck-swift3--get-xcode-target (xcodeproj xcrun-path)
-  "Return the platform target for XCODEPROJ.
-If no valid target is found, return flycheck-swift3-target."
-  (let* ((target flycheck-swift3-target)
-         (build-settings (flycheck-swift3--get-xcode-build-settings xcodeproj xcrun-path))
-         (swift-platform-target (cadr (assoc "SWIFT_PLATFORM_TARGET_PREFIX" build-settings)))
-         ;; NATIVE_ARCH_ACTUAL will be "x86_64" for macOS and for the iOS Simulator.
-         ;; We never want "arm*" for flycheck.
-         (native-arch (cadr (assoc "NATIVE_ARCH_ACTUAL" build-settings)))
-         (macos-target (cadr (assoc "MACOSX_DEPLOYMENT_TARGET" build-settings)))
-         (iphoneos-target (cadr (assoc "IPHONEOS_DEPLOYMENT_TARGET" build-settings)))
-         (deployment-target (if macos-target
-                                macos-target
-                              iphoneos-target)))
-    (if (and native-arch swift-platform-target deployment-target)
-        (setq target (format "%s-apple-%s%s" native-arch swift-platform-target deployment-target)))
-    target))
+If the parsed Xcode project is found in our cache, return that.
+Otherwise read from disk, cache and return the project."
+  (setq xcproj-path (expand-file-name xcproj-path))
+  (when (and xcproj-path (file-directory-p xcproj-path))
+    (or (flycheck-swift3--read-xcode-project-cache xcproj-path)
+        (when-let (proj (xcode-project-read xcproj-path))
+          (flycheck-swift3--write-xcode-project-cache proj xcproj-path)
+          proj))))
 
-(defun flycheck-swift3--get-xcode-sdk-path (xcodeproj xcrun-path)
-  "Return the platform sdk for XCODEPROJ.
-If no valid sdk is found, return flycheck-swift3-sdk-path."
-  (let* (sdk-path
-         (build-settings (flycheck-swift3--get-xcode-build-settings xcodeproj xcrun-path))
-         (swift-platform-target (cadr (assoc "SWIFT_PLATFORM_TARGET_PREFIX" build-settings))))
-    (if (equal swift-platform-target "ios")
-        (setq sdk-path (cadr (assoc "CORRESPONDING_SIMULATOR_SDK_DIR" build-settings)))
-      (setq sdk-path (cadr (assoc "SDK_DIR" build-settings))))
-    (if sdk-path
-        sdk-path
-      (flycheck-swift3--swift-sdk-path xcrun-path flycheck-swift3-sdk-path))))
+(defun flycheck-swift3--xcode-build-settings (xcproj target-name)
+  "Return the build settings for the specified XCPROJ and TARGET-NAME."
+  (let ((config-name (or flycheck-swift3-xcode-build-config "Debug")))
+    (when xcproj
+      (alist-get 'buildSettings (xcode-project-build-config xcproj
+                                                            config-name
+                                                            target-name)))))
+
+(defun flycheck-swift3--platform-target (build-settings)
+  "Return the platform target for BUILD-SETTINGS.
+If no valid target is found, return flycheck-swift3-platform-target."
+  (if build-settings
+      (let ((macos-target (alist-get 'MACOSX_DEPLOYMENT_TARGET build-settings))
+            (iphoneos-target (alist-get 'IPHONEOS_DEPLOYMENT_TARGET build-settings)))
+        (cond (macos-target
+               (format "x86_64-apple-macosx%s" macos-target))
+              (iphoneos-target
+               ;; We never want "arm*" for flycheck.
+               (format "x86_64-apple-ios%s" iphoneos-target))))
+      flycheck-swift3-platform-target))
+
+(defun flycheck-swift3--sdk-path (build-settings xcrun-path)
+  "Return the platform sdk for BUILD-SETTINGS.
+If no valid sdk is found, return flycheck-swift3--xcrun-sdk-path using XCRUN-PATH.
+
+If BUILD-SETTINGS is nil return flycheck-swift3-sdk-path else flycheck-swift3--xcrun-sdk-path."
+  (if build-settings
+      (let ((sdk-root (alist-get 'SDKROOT build-settings)))
+        (when (equal sdk-root "iphoneos")
+          (setq sdk-root "iphonesimulator"))
+        (flycheck-swift3--xcrun-sdk-path xcrun-path sdk-root))
+    (or flycheck-swift3-sdk-path
+        (flycheck-swift3--xcrun-sdk-path xcrun-path))))
+
+(defun flycheck-swift3--source-files (xcproj target-name)
+  "Return the swift source files associated with the current buffer.
+
+If XCPROJ and TARGET-NAME are non-nil then returns the source files
+for the specified Xcode target.
+
+If flycheck-swift3-inputs is non-nil returns these inputs.
+
+Otherwise returns all .swift file found in the current buffer's directory."
+  (if xcproj
+      (xcode-project-build-file-paths xcproj
+                                      target-name
+                                      "PBXSourcesBuildPhase"
+                                      (lambda (file)
+                                        (xcode-project-file-ref-extension-p file "swift"))
+                                      'absolute)
+    (let* ((file-name (or load-file-name buffer-file-name))
+           (directory-name (file-name-directory file-name)))
+      (or (flycheck-swift3--expand-inputs flycheck-swift3-inputs directory-name)
+          (flycheck-swift3--list-swift-files directory-name)))))
 
 (defun flycheck-swift3--expand-inputs (inputs &optional directory)
   "Return the expanded inputs.
@@ -300,36 +328,59 @@ input files using `DIRECTORY' as the default directory."
                       (file-expand-wildcards
                        (expand-file-name input directory) t)))))))
 
+(defun flycheck-swift3--swiftc-options (file-name xcrun-path)
+  "Return a list of swiftc command line options for FILE-NAME.
+
+If flycheck-swift3-use-xcode-project is t then use the associated
+Xcode project's build settings to determine command line options.
+
+The XCRUN-PATH is used to locate tools and sdks.
+
+Otherwise fall back to the flycheck-swift3 custom options."
+  (let* ((xcproj (when flycheck-swift3-use-xcode-project
+                   (flycheck-swift3--load-xcode-project (xcode-project-find-xcodeproj file-name))))
+         (target-name (when xcproj
+                        (car (xcode-project-target-names-for-file xcproj file-name "PBXSourcesBuildPhase"))))
+         (build-settings (flycheck-swift3--xcode-build-settings xcproj target-name)))
+    `(
+       ,(if (version< (flycheck-swift3--swiftc-version xcrun-path) "3.1")
+            "-parse" "-typecheck")
+       ,@(flycheck-prepend-with-option "-module-name" (list target-name))
+       ,@(flycheck-prepend-with-option "-sdk"
+                                       (list (flycheck-swift3--sdk-path build-settings xcrun-path)))
+       ,@(flycheck-prepend-with-option "-target"
+                                       (list (flycheck-swift3--platform-target build-settings)))
+       ,@(flycheck-prepend-with-option "-swift-version"
+                                       ;; -swift-version appears to require integers (3 not 3.0 etc).
+                                       (when-let (swift-version (alist-get 'SWIFT_VERSION build-settings))
+                                         (list (number-to-string (truncate swift-version)))))
+       ;; TODO:
+       ;; * GCC_PREPROCESSOR_DEFINITIONS
+       ;; * FRAMEWORK_SEARCH_PATHS
+       ;; * HEADER_SEARCH_PATHS
+       ,(when-let (opt-level (alist-get 'SWIFT_OPTIMIZATION_LEVEL build-settings))
+          opt-level)
+       ,@(when-let (source-files (flycheck-swift3--source-files xcproj target-name))
+           (remove file-name source-files)))))
+
 (defun flycheck-swift3--syntax-checking-command ()
   "Return the command to run for Swift syntax checking."
   (let* ((xcrun-path (executable-find "xcrun"))
          (command
-          `("swiftc"
-            "-frontend"
-            (eval (if (version<
-                       (flycheck-swift3--swiftc-version ,xcrun-path) "3.1")
-                      "-parse" "-typecheck"))
-            (option-list "-D" flycheck-swift3-conditional-compilation-flags)
-            (option-list "-F" flycheck-swift3-framework-search-paths)
-            (option-list "-I" flycheck-swift3-import-search-paths)
-            (option "-module-name" flycheck-swift3-module-name)
-            (eval (let* ((file-name (or load-file-name buffer-file-name))
-                         (xcodeproj (flycheck-swift3--find-xcodeproj file-name))
-                         (swift-sdk-path (flycheck-swift3--get-xcode-sdk-path xcodeproj ,xcrun-path)))
-                    (when swift-sdk-path `("-sdk" ,swift-sdk-path))))
-            (eval (let* ((file-name (or load-file-name buffer-file-name))
-                         (xcodeproj (flycheck-swift3--find-xcodeproj file-name))
-                         (target (flycheck-swift3--get-xcode-target xcodeproj ,xcrun-path)))
-                    (when target `("-target" ,target))))
-            (option "-import-objc-header" flycheck-swift3-import-objc-header)
-            (option-list "-Xcc" flycheck-swift3-xcc-args)
-            (eval (let* ((file-name (or load-file-name buffer-file-name))
-                         (directory-name (file-name-directory file-name)))
-                    (remove file-name (or (flycheck-swift3--expand-inputs flycheck-swift3-inputs directory-name)
-                                          (flycheck-swift3--list-swift-files directory-name)))))
-            "-primary-file"
-            ;; Read from standard input
-            "-")))
+    `("swiftc"
+      "-frontend"
+      (option-list "-D" flycheck-swift3-conditional-compilation-flags)
+      (option-list "-F" flycheck-swift3-framework-search-paths)
+      (option-list "-I" flycheck-swift3-import-search-paths)
+      (option "-import-objc-header" flycheck-swift3-import-objc-header)
+      (option-list "-Xcc" flycheck-swift3-xcc-args)
+      ;; Options which require an Xcode project are evaluated together to avoid
+      ;; loading the project more than once during a check.
+      (eval (let* ((file-name (or load-file-name buffer-file-name)))
+              (flycheck-swift3--swiftc-options file-name ,xcrun-path)))
+      "-primary-file"
+      ;; Read from standard input
+      "-")))
     (if xcrun-path
         (let ((xcrun-command
                `(,xcrun-path
