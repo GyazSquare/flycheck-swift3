@@ -122,6 +122,17 @@ When non-nil, set the SDK path to compile against, via `-sdk'."
   :type '(directory :tag "SDK path")
   :safe #'stringp)
 
+(flycheck-def-option-var flycheck-swift3-swift-version nil swift
+  "Interpret input according to a specific Swift language version
+number.
+
+When non-nil, set the specific Swift language version to
+interpret input, via `-swift-version'.
+
+The option is available in Swift 3.1 or later."
+  :type 'string
+  :safe #'stringp)
+
 (flycheck-def-option-var flycheck-swift3-target nil swift
   "Generate code for the given target."
   :type 'string
@@ -225,6 +236,7 @@ input files using `DIRECTORY' as the default directory."
                                          ,xcrun-path
                                          flycheck-swift3-xcrun-sdk)))
                     (when swift-sdk-path `("-sdk" ,swift-sdk-path))))
+            (option "-swift-version" flycheck-swift3-swift-version)
             (option "-target" flycheck-swift3-target)
             (option "-import-objc-header" flycheck-swift3-import-objc-header)
             (option-list "-Xcc" flycheck-swift3-xcc-args)
