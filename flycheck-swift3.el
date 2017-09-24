@@ -138,6 +138,15 @@ The option is available in Swift 3.1 or later."
   :type 'string
   :safe #'stringp)
 
+(flycheck-def-option-var flycheck-swift3-swift3-objc-inference nil swift
+  "Control how the Swift compiler infers @objc for declarations.
+
+The option is available in Swift 4.0 or later."
+  :type '(choice (const :tag "Default" nil)
+                 (const :tag "On" on)
+                 (const :tag "Off" off))
+  :safe #'symbolp)
+
 (flycheck-def-option-var flycheck-swift3-import-objc-header nil swift
   "Implicitly import an Objective-C header file.
 
@@ -238,6 +247,11 @@ input files using `DIRECTORY' as the default directory."
                     (when swift-sdk-path `("-sdk" ,swift-sdk-path))))
             (option "-swift-version" flycheck-swift3-swift-version)
             (option "-target" flycheck-swift3-target)
+            (eval (cond ((eq flycheck-swift3-swift3-objc-inference 'on)
+                         '("-enable-swift3-objc-inference"
+                           "-warn-swift3-objc-inference-minimal"))
+                        ((eq flycheck-swift3-swift3-objc-inference 'off)
+                         "-disable-swift3-objc-inference")))
             (option "-import-objc-header" flycheck-swift3-import-objc-header)
             (option-list "-Xcc" flycheck-swift3-xcc-args)
             (eval (let ((file-name (or load-file-name buffer-file-name)))
