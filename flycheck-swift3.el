@@ -56,7 +56,7 @@
 (require 'flycheck)
 
 (flycheck-def-option-var flycheck-swift3-xcrun-sdk nil swift
-  "Specifies which SDK to search for tools.
+  "Specify which SDK to search for tools.
 
 When non-nil, set the SDK name to find the tools, via `--sdk'.
 The option is available only on macOS.
@@ -66,7 +66,7 @@ Use `xcodebuild -showsdks' to list the available SDK names."
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-xcrun-toolchain nil swift
-  "Specifies which toolchain to use to perform the lookup.
+  "Specify which toolchain to use to perform the lookup.
 
 When non-nil, set the toolchain identifier or name to use to
 perform the lookup, via `--toolchain'.
@@ -75,7 +75,7 @@ The option is available only on macOS."
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-conditional-compilation-flags nil swift
-  "Specifies conditional compilation flags marked as true.
+  "Specify conditional compilation flags marked as true.
 
 When non-nil, add the specified conditional compilation flags via
 `-D'."
@@ -99,7 +99,7 @@ import files, via `-I'."
   :safe #'flycheck-string-list-p)
 
 (flycheck-def-option-var flycheck-swift3-module-name nil swift
-  "Specifies name of the module to build.
+  "Specify name of the module to build.
 
 When non-nil, set the name of the module to build, via
 `-module-name'."
@@ -107,7 +107,7 @@ When non-nil, set the name of the module to build, via
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-sdk-path nil swift
-  "Specifies which SDK to compile against.
+  "Specify which SDK to compile against.
 
 When non-nil, set the SDK path to compile against, via `-sdk'."
   :type '(directory :tag "SDK path")
@@ -119,7 +119,7 @@ When non-nil, set the SDK path to compile against, via `-sdk'."
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-import-objc-header nil swift
-  "Implicitly imports an Objective-C header file.
+  "Implicitly import an Objective-C header file.
 
 When non-nil, import an Objective-C header file via
 `-import-objc-header'.
@@ -139,7 +139,7 @@ C/C++/Objective-C compiler, via `-Xcc'."
   :safe #'flycheck-string-list-p)
 
 (flycheck-def-option-var flycheck-swift3-inputs nil swfit
-  "Specifies input files to parse.
+  "Specify input files to parse.
 
 When non-nil, set the input files to parse."
   :type '(repeat (string :tag "Input file"))
