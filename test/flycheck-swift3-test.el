@@ -107,6 +107,39 @@
      '(19 5 info "indent the expression to silence this warning"
           :checker swift3))))
 
+(flycheck-ert-def-checker-test swift3 swift swift-version
+  (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-swift-version "3"))
+    (flycheck-ert-should-syntax-check
+     "objc-inference.swift" 'swift-mode)))
+
+(flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-default
+  (let ((flycheck-checkers '(swift3)))
+    (flycheck-ert-should-syntax-check
+     "objc-inference.swift" 'swift-mode
+     '(6 10 info "overridden declaration is here" :checker swift3)
+     '(10 19 error "declarations from extensions cannot be overridden yet"
+          :checker swift3))))
+
+(flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-on
+  (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-swift3-objc-inference 'on))
+    (flycheck-ert-should-syntax-check
+     "objc-inference.swift" 'swift-mode
+     '(6 10 info "add '@objc' to expose this instance method to Objective-C"
+         :checker swift3)
+     '(10 19 warning "override of instance method 'extMethod()' from extension of 'MySuperclass' depends on deprecated inference of '@objc'"
+          :checker swift3))))
+
+(flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-off
+  (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-swift3-objc-inference 'off))
+    (flycheck-ert-should-syntax-check
+     "objc-inference.swift" 'swift-mode
+     '(6 10 info "overridden declaration is here" :checker swift3)
+     '(10 19 error "declarations from extensions cannot be overridden yet"
+          :checker swift3))))
+
 (flycheck-ert-initialize flycheck-swift3-test-directory)
 
 (provide 'flycheck-swift3-test)
