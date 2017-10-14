@@ -88,7 +88,7 @@ When non-nil, add the specified conditional compilation flags via
 When non-nil, add the specified directory to the search path for
 system framework include files, via `-Fsystem'.
 The option is available in Swift 4.0 or later."
-  :type '(repeat (directory :tag "System Framework directory"))
+  :type '(repeat (directory :tag "System framework directory"))
   :safe #'flycheck-string-list-p)
 
 (flycheck-def-option-var flycheck-swift3-framework-search-paths nil swift
