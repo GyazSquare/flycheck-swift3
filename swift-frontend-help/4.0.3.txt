@@ -1,0 +1,166 @@
+OVERVIEW: Swift frontend
+
+USAGE: swift -frontend [options] <inputs>
+
+MODES:
+  -dump-ast              Parse and type-check input file(s) and dump AST(s)
+  -dump-parse            Parse input file(s) and dump AST(s)
+  -dump-scope-maps <expanded-or-list-of-line:column>
+                         Parse and type-check input file(s) and dump the scope map(s)
+  -dump-type-refinement-contexts
+                         Type-check input file(s) and dump type refinement contexts(s)
+  -emit-assembly         Emit assembly file(s) (-S)
+  -emit-bc               Emit LLVM BC file(s)
+  -emit-imported-modules Emit a list of the imported modules
+  -emit-ir               Emit LLVM IR file(s)
+  -emit-object           Emit object file(s) (-c)
+  -emit-sibgen           Emit serialized AST + raw SIL file(s)
+  -emit-sib              Emit serialized AST + canonical SIL file(s)
+  -emit-silgen           Emit raw SIL file(s)
+  -emit-sil              Emit canonical SIL file(s)
+  -parse                 Parse input file(s)
+  -print-ast             Parse and type-check input file(s) and pretty print AST(s)
+  -typecheck             Parse and type-check input file(s)
+
+OPTIONS:
+  -api-diff-data-file <path>
+                          API migration data is from <path>
+  -application-extension  Restrict code to those available for App Extensions
+  -assert-config <value>  Specify the assert_configuration replacement. Possible values are Debug, Release, Unchecked, DisableReplacement.
+  -autolink-library <value>
+                          Add dependent library
+  -color-diagnostics      Print diagnostics in color
+  -continue-building-after-errors
+                          Continue building, even after errors are encountered
+  -delayed-function-body-parsing
+                          Delay function body parsing until the end of all files
+  -disable-migrator-fixits
+                          Disable the Migrator phase which automatically applies fix-its
+  -disable-objc-attr-requires-foundation-module
+                          Disable requiring uses of @objc to require importing the Foundation module
+  -disable-objc-interop   Disable Objective-C interop code generation and config directives
+  -disable-serialization-nested-type-lookup-table
+                          Force module merging to use regular lookups to find nested types
+  -disable-target-os-checking
+                          Disable checking the target OS of serialized modules
+  -disable-testable-attr-requires-testable-module
+                          Disable checking of @testable
+  -disable-typo-correction
+                          Disable typo correction
+  -dump-migration-states-dir <path>
+                          Dump the input text, output text, and states for migration to <path>
+  -dump-usr               Dump USR for each declaration reference
+  -D <value>              Marks a conditional compilation flag as true
+  -embed-bitcode-marker   Embed placeholder LLVM IR data as a marker
+  -embed-bitcode          Embed LLVM IR bitcode as data
+  -emit-dependencies-path <path>
+                          Output basic Make-compatible dependencies file to <path>
+  -emit-dependencies      Emit basic Make-compatible dependencies files
+  -emit-fixits-path <path>
+                          Output compiler fixits as source edits to <path>
+  -emit-loaded-module-trace-path <path>
+                          Emit the loaded module trace JSON to <path>
+  -emit-loaded-module-trace
+                          Emit a JSON file containing information about what modules were loaded
+  -emit-migrated-file-path <path>
+                          Emit the migrated source file to <path>
+  -emit-module-doc-path <path>
+                          Output module documentation file <path>
+  -emit-module-doc        Emit a module documentation file based on documentation comments
+  -emit-module-path <path>
+                          Emit an importable module to <path>
+  -emit-module            Emit an importable module
+  -emit-objc-header-path <path>
+                          Emit an Objective-C header file to <path>
+  -emit-objc-header       Emit an Objective-C header file
+  -emit-reference-dependencies-path <path>
+                          Output Swift-style dependencies file to <path>
+  -emit-reference-dependencies
+                          Emit a Swift-style dependencies file
+  -emit-remap-file-path <path>
+                          Emit the replacement map describing Swift Migrator changes to <path>
+  -emit-tbd-path <path>   Emit the TBD file to <path>
+  -emit-tbd               Emit a TBD file
+  -enable-astscope-lookup Enable ASTScope-based unqualified name lookup
+  -enable-objc-attr-requires-foundation-module
+                          Enable requiring uses of @objc to require importing the Foundation module
+  -enable-objc-interop    Enable Objective-C interop code generation and config directives
+  -enable-swiftcall       Enable the use of LLVM swiftcall support
+  -enable-target-os-checking
+                          Enable checking the target OS of serialized modules
+  -enable-testable-attr-requires-testable-module
+                          Enable checking of @testable
+  -enforce-exclusivity=<enforcement>
+                          Enforce law of exclusivity
+  -filelist <value>       Specify source inputs in a file rather than on the command line
+  -fixit-all              Apply all fixits from diagnostics without any filtering
+  -framework <value>      Specifies a framework which should be linked against
+  -Fsystem <value>        Add directory to system framework search path
+  -F <value>              Add directory to framework search path
+  -gdwarf-types           Emit full DWARF type info.
+  -gline-tables-only      Emit minimal debug info for backtraces only
+  -gnone                  Don't emit debug info
+  -g                      Emit debug info. This is the preferred setting for debugging with LLDB.
+  -help                   Display available options
+  -import-underlying-module
+                          Implicitly imports the Objective-C half of a module
+  -index-store-path <path>
+                          Store indexing data to <path>
+  -I <value>              Add directory to the import search path
+  -L <value>              Add directory to library link search path
+  -l<value>               Specifies a library which should be linked against
+  -migrate-keep-objc-visibility
+                          When migrating, add '@objc' to declarations that would've been implicitly visible in Swift 3
+  -migrator-update-sdk    Does nothing. Temporary compatibility flag for Xcode.
+  -migrator-update-swift  Does nothing. Temporary compatibility flag for Xcode.
+  -module-cache-path <value>
+                          Specifies the Clang module cache path
+  -module-link-name <value>
+                          Library to link against when using this module
+  -module-name <value>    Name of the module to build
+  -nostdimport            Don't search the standard library import path for modules
+  -num-threads <n>        Enable multi-threading and specify number of threads
+  -Onone                  Compile without any optimization
+  -Osize                  Compile with optimizations and target small code size
+  -Ounchecked             Compile with optimizations and remove runtime safety checks
+  -output-filelist <value>
+                          Specify outputs in a file rather than on the command line
+  -O                      Compile with optimizations
+  -o <file>               Write output to <file>
+  -parse-as-library       Parse the input file(s) as libraries, not scripts
+  -parse-sil              Parse the input file as SIL code, not Swift source
+  -primary-file <value>   Produce output for this file, not the whole module
+  -print-clang-stats      Print Clang importer statistics
+  -profile-coverage-mapping
+                          Generate coverage data for use with profiled execution counts
+  -profile-generate       Generate instrumented code to collect execution counts
+  -sanitize-coverage=<type>
+                          Specify the type of coverage instrumentation for Sanitizers and additional options separated by commas
+  -sanitize=<check>       Turn on runtime checks for erroneous behavior.
+  -sdk <sdk>              Compile against <sdk>
+  -serialize-debugging-options
+                          Always serialize options for debugging (default: only for apps)
+  -serialize-diagnostics-path <path>
+                          Output serialized diagnostics to <path>
+  -serialize-diagnostics  Serialize diagnostics in a binary format
+  -show-diagnostics-after-fatal
+                          Keep emitting subsequent diagnostics after a fatal error
+  -suppress-warnings      Suppress all warnings
+  -swift-version <vers>   Interpret input according to a specific Swift language version number
+  -target-cpu <value>     Generate code for a particular CPU variant
+  -target <value>         Generate code for the given target
+  -tbd-install_name <path>
+                          The install_name to use in an emitted TBD file
+  -tools-directory <directory>
+                          Look for external executables (ld, clang, binutils) in <directory>
+  -verify-apply-fixes     Like -verify, but updates the original source file
+  -verify-ignore-unknown  Allow diagnostics for '<unknown>' location in verify mode
+  -verify                 Verify diagnostics against expected-{error|warning|note} annotations
+  -warn-swift3-objc-inference-complete
+                          Warn about deprecated @objc inference in Swift 3 for every declaration that will no longer be inferred as @objc in Swift 4
+  -warn-swift3-objc-inference-minimal
+                          Warn about deprecated @objc inference in Swift 3 based on direct uses of the Objective-C entrypoint
+  -warnings-as-errors     Treat warnings as errors
+  -whole-module-optimization
+                          Optimize input files together instead of individually
+  -Xcc <arg>              Pass <arg> to the C/C++/Objective-C compiler
