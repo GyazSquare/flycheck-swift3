@@ -1,6 +1,6 @@
 ;;; flycheck-swift3-test.el --- Flycheck Swift: Test cases
 
-;; Copyright (c) 2016 GyazSquare Inc.
+;; Copyright (c) 2016-2018 GyazSquare Inc.
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
@@ -68,7 +68,10 @@
     (flycheck-ert-should-syntax-check
      "hello.swift" 'swift-mode
      '(0 nil error "failed to import bridging header 'hello-bridge-header.h'"
-         :checker swift3))))
+         :checker swift3)
+     `(1 2 error "\"error message\"" :checker swift3
+         :filename ,(expand-file-name "hello-bridge-header.h"
+                                      flycheck-swift3-test-directory)))))
 
 (flycheck-ert-def-checker-test swift3 swift error-warning-info
   (let ((flycheck-checkers '(swift3)))
@@ -117,8 +120,9 @@
   (let ((flycheck-checkers '(swift3)))
     (flycheck-ert-should-syntax-check
      "objc-inference.swift" 'swift-mode
-     '(6 10 info "overridden declaration is here" :checker swift3)
-     '(10 19 error "declarations from extensions cannot be overridden yet"
+     '(6 10 info "add '@objc' to make this declaration overridable"
+         :checker swift3)
+     '(10 19 error "overriding non-@objc declarations from extensions is not supported"
           :checker swift3))))
 
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-on
@@ -136,8 +140,9 @@
         (flycheck-swift3-swift3-objc-inference 'off))
     (flycheck-ert-should-syntax-check
      "objc-inference.swift" 'swift-mode
-     '(6 10 info "overridden declaration is here" :checker swift3)
-     '(10 19 error "declarations from extensions cannot be overridden yet"
+     '(6 10 info "add '@objc' to make this declaration overridable"
+         :checker swift3)
+     '(10 19 error "overriding non-@objc declarations from extensions is not supported"
           :checker swift3))))
 
 (flycheck-ert-initialize flycheck-swift3-test-directory)
