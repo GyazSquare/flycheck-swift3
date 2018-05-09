@@ -51,6 +51,9 @@
 ;; (with-eval-after-load 'flycheck
 ;;   (add-hook 'flycheck-mode-hook #'flycheck-swift3-setup))
 
+;; Debug:
+;; In flycheck.el:flycheck-start-command-checker, add (when (equal checker 'swift3) (message "%s %s" checker args))
+
 ;;; Code:
 
 (require 'flycheck)
@@ -225,7 +228,7 @@ Otherwise return the previously used cache directory."
   "Return the modification time for XCPROJ-PATH."
   (setq xcproj-path (expand-file-name xcproj-path))
   (if (and xcproj-path (file-directory-p xcproj-path))
-      (nth 5 (file-attributes (concat (file-name-as-directory xcproj-path) "project.pbxproj")))))
+      (nth 5 (file-attributes (xcode-project-concat-path xcproj-path "project.pbxproj")))))
 
 (defun flycheck-swift3--xcodeproj-cache-path (xcproj-path)
   "Return the cache path for the specified XCPROJ-PATH."
@@ -277,7 +280,17 @@ If no valid target is found, return flycheck-swift3-platform-target."
               (iphoneos-target
                ;; We never want "arm*" for flycheck.
                (format "x86_64-apple-ios%s" iphoneos-target))))
-      flycheck-swift3-platform-target))
+    flycheck-swift3-platform-target))
+
+(defun flycheck-swift3--target-build-dir (target-name)
+  "Return the target build dir for TARGET-NAME.
+Uses heuristics to locate the build dir in ~/Library/Developer/Xcode/DerivedData/."
+  (let* ((build-root (expand-file-name "~/Library/Developer/Xcode/DerivedData/"))
+         (results (directory-files-and-attributes build-root t (concat target-name "\\-[a-z]+"))))
+    (car (seq-reduce (lambda (result item)
+                       (if (time-less-p (nth 6 result) (nth 6 item))
+                           item
+                         result)) results (car results)))))
 
 (defun flycheck-swift3--sdk-path (build-settings xcrun-path)
   "Return the platform sdk for BUILD-SETTINGS.
@@ -328,6 +341,23 @@ input files using `DIRECTORY' as the default directory."
                       (file-expand-wildcards
                        (expand-file-name input directory) t)))))))
 
+(defun flycheck-swift3--search-paths (key build-settings)
+  "Return a list of resolved search paths for KEY in BUILD-SETTINGS."
+  (when-let (search-paths (alist-get key build-settings))
+    (if (stringp search-paths)
+        (seq-into (split-string search-paths) 'vector)
+      search-paths)))
+
+(defun flycheck-swift3--gcc-compilation-flags (build-settings)
+  "Return a list of GCC conditional compilation flags found in BUILD-SETTINGS."
+  (when-let (preprocessor-defs (alist-get 'GCC_PREPROCESSOR_DEFINITIONS build-settings))
+    (when (stringp preprocessor-defs)
+      (setq preprocessor-defs (vector preprocessor-defs)))
+    (seq-concatenate 'vector
+                     preprocessor-defs
+                     (alist-get 'GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS build-settings))
+    ))
+
 (defun flycheck-swift3--swiftc-options (file-name xcrun-path)
   "Return a list of swiftc command line options for FILE-NAME.
 
@@ -341,7 +371,10 @@ Otherwise fall back to the flycheck-swift3 custom options."
                    (flycheck-swift3--load-xcode-project (xcode-project-find-xcodeproj file-name))))
          (target-name (when xcproj
                         (car (xcode-project-target-names-for-file xcproj file-name "PBXSourcesBuildPhase"))))
-         (build-settings (flycheck-swift3--xcode-build-settings xcproj target-name)))
+         (build-settings (flycheck-swift3--xcode-build-settings xcproj target-name))
+         (build-products-dir (xcode-project-concat-path (flycheck-swift3--target-build-dir target-name)
+                                                                 "Build/Products"
+                                                                 (or flycheck-swift3-xcode-build-config "Debug"))))
     `(
        ,(if (version< (flycheck-swift3--swiftc-version xcrun-path) "3.1")
             "-parse" "-typecheck")
@@ -354,10 +387,20 @@ Otherwise fall back to the flycheck-swift3 custom options."
                                        ;; -swift-version appears to require integers (3 not 3.0 etc).
                                        (when-let (swift-version (alist-get 'SWIFT_VERSION build-settings))
                                          (list (number-to-string (truncate swift-version)))))
-       ;; TODO:
-       ;; * GCC_PREPROCESSOR_DEFINITIONS
-       ;; * FRAMEWORK_SEARCH_PATHS
-       ;; * HEADER_SEARCH_PATHS
+       ,@(flycheck-prepend-with-option "-F" (flycheck-swift3--search-paths 'FRAMEWORK_SEARCH_PATHS
+                                                                           build-settings))
+       ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'HEADER_SEARCH_PATHS
+                                                                           build-settings))
+       ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'USER_HEADER_SEARCH_PATHS
+                                                                           build-settings))
+       ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'SWIFT_INCLUDE_PATHS
+                                                                           build-settings))
+       ;; Add target build dir to ensure that any framework dependencies are found
+       ,@(when build-products-dir
+           (flycheck-prepend-with-option "-F" (list build-products-dir)))
+       ,@(when build-products-dir
+           (flycheck-prepend-with-option "-I" (list build-products-dir)))
+       ,@(flycheck-prepend-with-option "-D" (flycheck-swift3--gcc-compilation-flags build-settings))
        ,(when-let (opt-level (alist-get 'SWIFT_OPTIMIZATION_LEVEL build-settings))
           opt-level)
        ,@(when-let (source-files (flycheck-swift3--source-files xcproj target-name))
@@ -388,6 +431,8 @@ Otherwise fall back to the flycheck-swift3 custom options."
                  (option "--toolchain" flycheck-swift3-xcrun-toolchain))))
           (append xcrun-command command))
       command)))
+
+;; (flycheck-swift3--swiftc-options "~/Projects/nhojb/metaltest/MetalTest/MetalView.swift" "xcrun")
 
 (flycheck-define-command-checker 'swift3
   "A Swift syntax checker using Swift compiler frontend.
