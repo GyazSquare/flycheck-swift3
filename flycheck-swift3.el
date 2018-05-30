@@ -393,6 +393,8 @@ Otherwise fall back to the flycheck-swift3 custom options."
                                                                            build-settings))
        ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'USER_HEADER_SEARCH_PATHS
                                                                            build-settings))
+       ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'SYSTEM_HEADER_SEARCH_PATHS
+                                                                           build-settings))
        ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'SWIFT_INCLUDE_PATHS
                                                                            build-settings))
        ;; Add target build dir to ensure that any framework dependencies are found
