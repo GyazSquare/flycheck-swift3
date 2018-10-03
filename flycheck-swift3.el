@@ -313,12 +313,13 @@ If no valid target is found, return flycheck-swift3-target."
 
 (defun flycheck-swift3--swift-version (build-settings)
   "Return the swift version for BUILD-SETTINGS."
-  (when-let (swift-version (alist-get 'SWIFT_VERSION build-settings))
+  (if-let (swift-version (alist-get 'SWIFT_VERSION build-settings))
     ;; -swift-version appears to require integers (4 not 4.0 etc).
     ;; Major versions, such as 4.2, are however valid.
     (if (equal (fround swift-version) swift-version)
         (number-to-string (truncate swift-version))
-      (number-to-string swift-version))))
+      (number-to-string swift-version))
+    flycheck-swift3-swift-version))
 
 (defun flycheck-swift3--target-build-dir (target-name)
   "Return the target build dir for TARGET-NAME.
