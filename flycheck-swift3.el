@@ -66,13 +66,15 @@ When non-nil, project settings (SDK, compilation flags, source files etc) will
 be obtained from the Xcode project associated with the current buffer's source
 file.
 
-If nil, or no Xcode project can be found, then fall back to the `flycheck-swift3' defaults."
+If nil, or no Xcode project can be found, then fall back to the `flycheck-swift3'
+defaults."
   :group 'flycheck-swift3
   :type 'bool
   :safe #'booleanp)
 
 (defcustom flycheck-swift3-xcode-build-config "Debug"
-  "Build configuration to use when extracting build settings from the Xcode project."
+  "Build configuration to use when extracting build settings from the
+Xcode project."
 
   :group 'flycheck-swift3
   :type 'string
@@ -139,7 +141,8 @@ When non-nil, set the name of the module to build, via
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-sdk-path nil swift
-  "Specify SDK path if one cannot be inferred from the current buffer's Xcode project.
+  "Specify SDK path if one cannot be inferred from the current buffer's
+Xcode project.
 
 When non-nil, set the SDK path to compile against, via `-sdk'."
   :type '(directory :tag "SDK path")
@@ -157,7 +160,8 @@ The option is available in Swift 3.1 or later."
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-target nil swift
-  "Specify compiler target if one cannot be inferred from the current buffer's Xcode project."
+  "Specify compiler target if one cannot be inferred from the current buffer's
+Xcode project."
   :type 'string
   :safe #'stringp)
 
@@ -268,7 +272,8 @@ Otherwise return the previously used cache directory."
 
 (defun flycheck-swift3--read-xcode-project-cache (xcproj-path)
   "Return the project cache for XCPROJ-PATH.
-Return nil if the cache is not found, or the modification time of the project has changed."
+Return nil if the cache is not found, or the modification time of the project
+has changed."
   (when-let (cache-path (flycheck-swift3--xcodeproj-cache-path xcproj-path))
     (when (file-exists-p cache-path)
       (xcode-project-deserialize cache-path))))
@@ -333,7 +338,8 @@ Uses heuristics to locate the build dir in ~/Library/Developer/Xcode/DerivedData
 
 (defun flycheck-swift3--sdk-path (build-settings xcrun-path)
   "Return the platform sdk for BUILD-SETTINGS.
-If no valid sdk is found, return flycheck-swift3--xcrun-sdk-path using XCRUN-PATH.
+If no valid sdk is found, return flycheck-swift3--xcrun-sdk-path using
+XCRUN-PATH.
 
 If BUILD-SETTINGS is nil return flycheck-swift3-sdk-path else
 flycheck-swift3--xcrun-sdk-path."
