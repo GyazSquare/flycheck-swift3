@@ -282,6 +282,15 @@ If no valid target is found, return flycheck-swift3-platform-target."
                (format "x86_64-apple-ios%s" iphoneos-target))))
     flycheck-swift3-platform-target))
 
+(defun flycheck-swift3--swift-version (build-settings)
+  "Return the swift version for BUILD-SETTINGS."
+  (when-let (swift-version (alist-get 'SWIFT_VERSION build-settings))
+    ;; -swift-version appears to require integers (4 not 4.0 etc).
+    ;; Major versions, such as 4.2, are however valid.
+    (if (equal (fround swift-version) swift-version)
+        (number-to-string (truncate swift-version))
+      (number-to-string swift-version))))
+
 (defun flycheck-swift3--target-build-dir (target-name)
   "Return the target build dir for TARGET-NAME.
 Uses heuristics to locate the build dir in ~/Library/Developer/Xcode/DerivedData/."
@@ -384,9 +393,7 @@ Otherwise fall back to the flycheck-swift3 custom options."
        ,@(flycheck-prepend-with-option "-target"
                                        (list (flycheck-swift3--platform-target build-settings)))
        ,@(flycheck-prepend-with-option "-swift-version"
-                                       ;; -swift-version appears to require integers (3 not 3.0 etc).
-                                       (when-let (swift-version (alist-get 'SWIFT_VERSION build-settings))
-                                         (list (number-to-string (truncate swift-version)))))
+                                       (list (flycheck-swift3--swift-version build-settings)))
        ,@(flycheck-prepend-with-option "-F" (flycheck-swift3--search-paths 'FRAMEWORK_SEARCH_PATHS
                                                                            build-settings))
        ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'HEADER_SEARCH_PATHS
