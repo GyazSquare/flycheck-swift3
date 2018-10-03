@@ -1,10 +1,10 @@
 ;;; flycheck-swift3.el --- Flycheck: Swift support for Apple swift-mode
 
-;; Copyright (c) 2016-2017 GyazSquare Inc.
+;; Copyright (c) 2016-2018 GyazSquare Inc.
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 1.1.0
+;; Version: 2.0.2
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "24.4") (flycheck "26"))
 
@@ -42,8 +42,8 @@
 ;; Features:
 ;;
 ;; - Apple swift-mode.el support
-;; - Apple Swift 3.1 support
-;;   If you use the toolchain option, you can use Swift 2.x.
+;; - Apple Swift 4.1 support
+;;   If you use the toolchain option, you can use the old version of Swift.
 ;; - The `xcrun' command support (only on macOS)
 ;;
 ;; Usage:
@@ -60,7 +60,7 @@
 (require 'xcode-project)
 
 (defcustom flycheck-swift3-use-xcode-project nil
-  "Specifies whether to use the `xcode-project' package to parse project settings.
+  "Specify whether to use the `xcode-project' package to parse project settings.
 
 When non-nil, project settings (SDK, compilation flags, source files etc) will
 be obtained from the Xcode project associated with the current buffer's source
@@ -79,7 +79,7 @@ If nil, or no Xcode project can be found, then fall back to the `flycheck-swift3
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-xcrun-sdk nil swift
-  "Specifies which SDK to search for tools.
+  "Specify which SDK to search for tools.
 
 When non-nil, set the SDK name to find the tools, via `--sdk'.
 The option is available only on macOS.
@@ -89,7 +89,7 @@ Use `xcodebuild -showsdks' to list the available SDK names."
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-xcrun-toolchain nil swift
-  "Specifies which toolchain to use to perform the lookup.
+  "Specify which toolchain to use to perform the lookup.
 
 When non-nil, set the toolchain identifier or name to use to
 perform the lookup, via `--toolchain'.
@@ -98,11 +98,20 @@ The option is available only on macOS."
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-conditional-compilation-flags nil swift
-  "Specifies conditional compilation flags marked as true.
+  "Specify conditional compilation flags marked as true.
 
 When non-nil, add the specified conditional compilation flags via
 `-D'."
   :type '(repeat (string :tag "Conditional compilation flag"))
+  :safe #'flycheck-string-list-p)
+
+(flycheck-def-option-var flycheck-swift3-system-framework-search-paths nil swift
+  "Add directory to system framework search paths.
+
+When non-nil, add the specified directory to the search path for
+system framework include files, via `-Fsystem'.
+The option is available in Swift 4.0 or later."
+  :type '(repeat (directory :tag "System framework directory"))
   :safe #'flycheck-string-list-p)
 
 (flycheck-def-option-var flycheck-swift3-framework-search-paths nil swift
@@ -122,7 +131,7 @@ import files, via `-I'."
   :safe #'flycheck-string-list-p)
 
 (flycheck-def-option-var flycheck-swift3-module-name nil swift
-  "Specifies name of the module to build.
+  "Specify name of the module to build.
 
 When non-nil, set the name of the module to build, via
 `-module-name'."
@@ -130,19 +139,39 @@ When non-nil, set the name of the module to build, via
   :safe #'stringp)
 
 (flycheck-def-option-var flycheck-swift3-sdk-path nil swift
-  "Default SDK path if one cannot be inferred from the current buffer's Xcode project.
+  "Specify SDK path if one cannot be inferred from the current buffer's Xcode project.
 
 When non-nil, set the SDK path to compile against, via `-sdk'."
   :type '(directory :tag "SDK path")
   :safe #'stringp)
 
-(flycheck-def-option-var flycheck-swift3-platform-target nil swift
-  "Default platform target if one cannot be inferred from the current buffer's Xcode project."
+(flycheck-def-option-var flycheck-swift3-swift-version nil swift
+  "Interpret input according to a specific Swift language version
+number.
+
+When non-nil, set the specific Swift language version to
+interpret input, via `-swift-version'.
+
+The option is available in Swift 3.1 or later."
   :type 'string
   :safe #'stringp)
 
+(flycheck-def-option-var flycheck-swift3-target nil swift
+  "Specify compiler target if one cannot be inferred from the current buffer's Xcode project."
+  :type 'string
+  :safe #'stringp)
+
+(flycheck-def-option-var flycheck-swift3-swift3-objc-inference nil swift
+  "Control how the Swift compiler infers @objc for declarations.
+
+The option is available in Swift 4.0 or later."
+  :type '(choice (const :tag "Default" nil)
+                 (const :tag "On" on)
+                 (const :tag "Off" off))
+  :safe #'symbolp)
+
 (flycheck-def-option-var flycheck-swift3-import-objc-header nil swift
-  "Implicitly imports an Objective-C header file.
+  "Implicitly import an Objective-C header file.
 
 When non-nil, import an Objective-C header file via
 `-import-objc-header'.
@@ -162,7 +191,7 @@ C/C++/Objective-C compiler, via `-Xcc'."
   :safe #'flycheck-string-list-p)
 
 (flycheck-def-option-var flycheck-swift3-inputs nil swift
-  "Specifies input files to parse.
+  "Specify input files to parse.
 
 When non-nil, set the input files to parse."
   :type '(repeat (string :tag "Input file"))
@@ -269,9 +298,9 @@ Otherwise read from disk, cache and return the project."
                                                             config-name
                                                             target-name)))))
 
-(defun flycheck-swift3--platform-target (build-settings)
+(defun flycheck-swift3--target (build-settings)
   "Return the platform target for BUILD-SETTINGS.
-If no valid target is found, return flycheck-swift3-platform-target."
+If no valid target is found, return flycheck-swift3-target."
   (if build-settings
       (let ((macos-target (alist-get 'MACOSX_DEPLOYMENT_TARGET build-settings))
             (iphoneos-target (alist-get 'IPHONEOS_DEPLOYMENT_TARGET build-settings)))
@@ -280,7 +309,7 @@ If no valid target is found, return flycheck-swift3-platform-target."
               (iphoneos-target
                ;; We never want "arm*" for flycheck.
                (format "x86_64-apple-ios%s" iphoneos-target))))
-    flycheck-swift3-platform-target))
+    flycheck-swift3-target))
 
 (defun flycheck-swift3--swift-version (build-settings)
   "Return the swift version for BUILD-SETTINGS."
@@ -305,7 +334,8 @@ Uses heuristics to locate the build dir in ~/Library/Developer/Xcode/DerivedData
   "Return the platform sdk for BUILD-SETTINGS.
 If no valid sdk is found, return flycheck-swift3--xcrun-sdk-path using XCRUN-PATH.
 
-If BUILD-SETTINGS is nil return flycheck-swift3-sdk-path else flycheck-swift3--xcrun-sdk-path."
+If BUILD-SETTINGS is nil return flycheck-swift3-sdk-path else
+flycheck-swift3--xcrun-sdk-path."
   (if build-settings
       (let ((sdk-root (alist-get 'SDKROOT build-settings)))
         (when (equal sdk-root "iphoneos")
@@ -392,7 +422,7 @@ Otherwise fall back to the flycheck-swift3 custom options."
        ,@(flycheck-prepend-with-option "-sdk"
                                        (list (flycheck-swift3--sdk-path build-settings xcrun-path)))
        ,@(flycheck-prepend-with-option "-target"
-                                       (list (flycheck-swift3--platform-target build-settings)))
+                                       (list (flycheck-swift3--target build-settings)))
        ,@(flycheck-prepend-with-option "-swift-version"
                                        (list (flycheck-swift3--swift-version build-settings)))
        ,@(flycheck-prepend-with-option "-F" (flycheck-swift3--search-paths 'FRAMEWORK_SEARCH_PATHS
@@ -423,8 +453,15 @@ Otherwise fall back to the flycheck-swift3 custom options."
     `("swiftc"
       "-frontend"
       (option-list "-D" flycheck-swift3-conditional-compilation-flags)
+      (option-list "-Fsystem"
+                   flycheck-swift3-system-framework-search-paths)
       (option-list "-F" flycheck-swift3-framework-search-paths)
       (option-list "-I" flycheck-swift3-import-search-paths)
+      (eval (cond ((eq flycheck-swift3-swift3-objc-inference 'on)
+                   '("-enable-swift3-objc-inference"
+                     "-warn-swift3-objc-inference-minimal"))
+                  ((eq flycheck-swift3-swift3-objc-inference 'off)
+                   "-disable-swift3-objc-inference")))
       (option "-import-objc-header" flycheck-swift3-import-objc-header)
       (option-list "-Xcc" flycheck-swift3-xcc-args)
       ;; Options which require an Xcode project are evaluated together to avoid

@@ -12,8 +12,8 @@ Flycheck-swift3 is designed to work with Apple [swift-mode.el](https://github.co
 ## Features
 
 * Apple [swift-mode.el](https://github.com/apple/swift/blob/master/utils/swift-mode.el) support
-* Apple Swift 3.1 support  
-  If you use the toolchain option, you can use Swift 2.x.
+* Apple Swift 4.1 support  
+  If you use the toolchain option, you can use the old version of Swift.
 * The `xcrun` command support (only on macOS)
 
 ## Requirements
@@ -27,7 +27,7 @@ Flycheck-swift3 is designed to work with Apple [swift-mode.el](https://github.co
 
 ## Installation
 
-If you're an Emacs 24 user or you have a recent version of `package.el`, you can install `flycheck-swift3.el` from the [MELPA](https://melpa.org/) or the [MELPA Stable](https://stable.melpa.org/) repository.
+You can install `flycheck-swift3.el` from the [MELPA](https://melpa.org/) or the [MELPA Stable](https://stable.melpa.org/) repository with `package.el`.
 
 In your `init.el`:
 
