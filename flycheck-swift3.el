@@ -387,7 +387,8 @@ Otherwise fall back to the flycheck-swift3 custom options."
     `(
        ,(if (version< (flycheck-swift3--swiftc-version xcrun-path) "3.1")
             "-parse" "-typecheck")
-       ,@(flycheck-prepend-with-option "-module-name" (list target-name))
+       ,@(flycheck-prepend-with-option "-module-name"
+                                       (list (or target-name flycheck-swift3-module-name)))
        ,@(flycheck-prepend-with-option "-sdk"
                                        (list (flycheck-swift3--sdk-path build-settings xcrun-path)))
        ,@(flycheck-prepend-with-option "-target"
