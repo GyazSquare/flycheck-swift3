@@ -59,7 +59,7 @@
 (require 'flycheck)
 (require 'xcode-project)
 
-(defcustom flycheck-swift3-use-xcode-project t
+(defcustom flycheck-swift3-use-xcode-project nil
   "Specifies whether to use the `xcode-project' package to parse project settings.
 
 When non-nil, project settings (SDK, compilation flags, source files etc) will
@@ -440,8 +440,6 @@ Otherwise fall back to the flycheck-swift3 custom options."
                  (option "--toolchain" flycheck-swift3-xcrun-toolchain))))
           (append xcrun-command command))
       command)))
-
-;; (flycheck-swift3--swiftc-options "~/Projects/nhojb/metaltest/MetalTest/MetalView.swift" "xcrun")
 
 (flycheck-define-command-checker 'swift3
   "A Swift syntax checker using Swift compiler frontend.
