@@ -52,7 +52,8 @@
 ;;   (add-hook 'flycheck-mode-hook #'flycheck-swift3-setup))
 
 ;; Debug:
-;; In flycheck.el:flycheck-start-command-checker, add (when (equal checker 'swift3) (message "%s %s" checker args))
+;; In flycheck.el:flycheck-start-command-checker, add:
+;; (when (equal checker 'swift3) (message "%s %s" checker args))
 
 ;;; Code:
 
@@ -417,41 +418,55 @@ Otherwise fall back to the flycheck-swift3 custom options."
                    (flycheck-swift3--load-xcode-project (xcode-project-find-xcodeproj file-name))))
          (target-name (when xcproj
                         (car (xcode-project-target-names-for-file xcproj file-name "PBXSourcesBuildPhase"))))
-         (build-settings (flycheck-swift3--xcode-build-settings xcproj target-name))
-         (build-products-dir (xcode-project-concat-path (flycheck-swift3--target-build-dir target-name)
-                                                                 "Build/Products"
-                                                                 (or flycheck-swift3-xcode-build-config "Debug"))))
+         (build-settings (when target-name
+                           (flycheck-swift3--xcode-build-settings xcproj target-name)))
+         (build-products-dir (when target-name
+                               (xcode-project-concat-path (flycheck-swift3--target-build-dir target-name)
+                                                          "Build/Products"
+                                                          (or flycheck-swift3-xcode-build-config "Debug")))))
     `(
-       ,(if (version< (flycheck-swift3--swiftc-version xcrun-path) "3.1")
-            "-parse" "-typecheck")
-       ,@(flycheck-prepend-with-option "-module-name"
-                                       (list (or target-name flycheck-swift3-module-name)))
-       ,@(flycheck-prepend-with-option "-sdk"
-                                       (list (flycheck-swift3--sdk-path build-settings xcrun-path)))
-       ,@(flycheck-prepend-with-option "-target"
-                                       (list (flycheck-swift3--target build-settings)))
-       ,@(flycheck-prepend-with-option "-swift-version"
-                                       (list (flycheck-swift3--swift-version build-settings)))
-       ,@(flycheck-prepend-with-option "-F" (flycheck-swift3--search-paths 'FRAMEWORK_SEARCH_PATHS
-                                                                           build-settings))
-       ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'HEADER_SEARCH_PATHS
-                                                                           build-settings))
-       ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'USER_HEADER_SEARCH_PATHS
-                                                                           build-settings))
-       ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'SYSTEM_HEADER_SEARCH_PATHS
-                                                                           build-settings))
-       ,@(flycheck-prepend-with-option "-I" (flycheck-swift3--search-paths 'SWIFT_INCLUDE_PATHS
-                                                                           build-settings))
-       ;; Add target build dir to ensure that any framework dependencies are found
-       ,@(when build-products-dir
-           (flycheck-prepend-with-option "-F" (list build-products-dir)))
-       ,@(when build-products-dir
-           (flycheck-prepend-with-option "-I" (list build-products-dir)))
-       ,@(flycheck-prepend-with-option "-D" (flycheck-swift3--gcc-compilation-flags build-settings))
-       ,(when-let (opt-level (alist-get 'SWIFT_OPTIMIZATION_LEVEL build-settings))
-          opt-level)
-       ,@(when-let (source-files (flycheck-swift3--source-files xcproj target-name))
-           (remove file-name source-files)))))
+      ,(if (version< (flycheck-swift3--swiftc-version xcrun-path) "3.1")
+           "-parse" "-typecheck")
+      ,@(flycheck-swift3--prepend-with-option "-module-name"
+                                              (or target-name flycheck-swift3-module-name))
+      ,@(flycheck-swift3--prepend-with-option "-target"
+                                              (flycheck-swift3--target build-settings))
+      ,@(flycheck-swift3--prepend-with-option "-swift-version"
+                                              (flycheck-swift3--swift-version build-settings))
+      ,@(flycheck-swift3--prepend-with-option "-sdk"
+                                              (flycheck-swift3--sdk-path build-settings xcrun-path))
+      ,@(flycheck-swift3--prepend-with-option "-D"
+                                              (flycheck-swift3--gcc-compilation-flags build-settings))
+      ,@(flycheck-prepend-with-option "-F"
+                                      (flycheck-swift3--search-paths 'FRAMEWORK_SEARCH_PATHS
+                                                                     build-settings))
+      ,@(flycheck-prepend-with-option "-I"
+                                      (flycheck-swift3--search-paths 'HEADER_SEARCH_PATHS
+                                                                     build-settings))
+      ,@(flycheck-prepend-with-option "-I"
+                                      (flycheck-swift3--search-paths 'USER_HEADER_SEARCH_PATHS
+                                                                     build-settings))
+      ,@(flycheck-prepend-with-option "-I"
+                                      (flycheck-swift3--search-paths 'SYSTEM_HEADER_SEARCH_PATHS
+                                                                     build-settings))
+      ,@(flycheck-prepend-with-option "-I"
+                                      (flycheck-swift3--search-paths 'SWIFT_INCLUDE_PATHS
+                                                                     build-settings))
+      ;; Add target build dir to ensure that any framework dependencies are found
+      ,@(flycheck-swift3--prepend-with-option "-F" build-products-dir)
+      ,@(flycheck-swift3--prepend-with-option "-I" build-products-dir)
+      ;; Associated source files, ignoring the file currently being checked.
+      ,@(when-let (source-files (flycheck-swift3--source-files xcproj target-name))
+          (remove file-name source-files)))))
+
+(defun flycheck-swift3--prepend-with-option (option items)
+  "Prepend OPTION to each item in ITEMS.
+
+Like flycheck-prepend-with-option, but returns nil if items is empty."
+  (when items
+    (when (stringp items)
+      (setq items (list items)))
+    (flycheck-prepend-with-option option items)))
 
 (defun flycheck-swift3--syntax-checking-command ()
   "Return the command to run for Swift syntax checking."
