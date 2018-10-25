@@ -370,8 +370,9 @@ Otherwise returns all .swift file found in the current buffer's directory."
                                       'absolute)
     (let* ((file-name (or load-file-name buffer-file-name))
            (directory-name (file-name-directory file-name)))
-      (or (flycheck-swift3--expand-inputs flycheck-swift3-inputs directory-name)
-          (flycheck-swift3--list-swift-files directory-name)))))
+      (if flycheck-swift3-inputs
+          (flycheck-swift3--expand-inputs flycheck-swift3-inputs directory-name)
+        (flycheck-swift3--list-swift-files directory-name)))))
 
 (defun flycheck-swift3--expand-inputs (inputs &optional directory)
   "Return the expanded inputs.
