@@ -173,6 +173,11 @@
      '(13 15 error "use of unresolved identifier 'bar'"
           :checker swift3))))
 
+(flycheck-ert-def-checker-test swift3 swift swift3-all-appdelegate
+  (let ((flycheck-checkers '(swift3)))
+    (flycheck-ert-should-syntax-check
+     "TestApp/TestApp/AppDelegate.swift" 'swift-mode)))
+
 (flycheck-ert-def-checker-test swift3 swift swift3-xcode-appdelegate
   (let ((flycheck-checkers '(swift3))
         (flycheck-swift3-use-xcode-project t))
