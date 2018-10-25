@@ -16,6 +16,7 @@ OBJS := $(SRCS:.el=.elc)
 TEST_DIR := test
 TEST_SRCS := flycheck-swift3-test.el
 SWIFT_MODE_SRCS := swift-mode.el
+XCODE_PROJECT_SRCS := xcode-project.el
 
 .PHONY : all
 all : $(OBJS)
@@ -39,6 +40,7 @@ test : all $(SWIFT_MODE_SRCS)
 	$(CASK) exec $(EMACSBATCH) \
 		$(TEST_SRCS:%=--load $(TEST_DIR)/%) \
 		$(SWIFT_MODE_SRCS:%=--load $(TEST_DIR)/%) \
+		$(XCODE_PROJECT_SRCS:%=--load %) \
 		--funcall ert-run-tests-batch-and-exit
 
 $(PKGDIR) : Cask

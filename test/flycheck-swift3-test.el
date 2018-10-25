@@ -153,6 +153,40 @@
      '(10 19 error "overriding non-@objc declarations from extensions is not supported"
           :checker swift3))))
 
+(flycheck-ert-def-checker-test swift3 swift swift3-appdelegate
+  (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-inputs '("AppDelegate.swift")))
+    (flycheck-ert-should-syntax-check
+     "TestApp/TestApp/AppDelegate.swift" 'swift-mode
+     '(1 1 info "top-level code defined in this source file"
+         :checker swift3)
+     '(11 1 error "'NSApplicationMain' attribute cannot be used in a module that contains top-level code"
+          :checker swift3)
+     '(14 25 error "use of undeclared type 'ViewController'"
+          :checker swift3))))
+
+(flycheck-ert-def-checker-test swift3 swift swift3-viewcontroller
+  (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-inputs '("ViewController.swift")))
+    (flycheck-ert-should-syntax-check
+     "TestApp/TestApp/ViewController.swift" 'swift-mode
+     '(13 15 error "use of unresolved identifier 'bar'"
+          :checker swift3))))
+
+(flycheck-ert-def-checker-test swift3 swift swift3-xcode-appdelegate
+  (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-use-xcode-project t))
+    (flycheck-ert-should-syntax-check
+     "TestApp/TestApp/AppDelegate.swift" 'swift-mode)))
+
+(flycheck-ert-def-checker-test swift3 swift swift3-xcode-viewcontroller
+  (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-use-xcode-project t))
+    (flycheck-ert-should-syntax-check
+     "TestApp/TestApp/ViewController.swift" 'swift-mode
+     '(13 15 error "use of unresolved identifier 'bar'"
+          :checker swift3))))
+
 (flycheck-ert-initialize flycheck-swift3-test-directory)
 
 (provide 'flycheck-swift3-test)
