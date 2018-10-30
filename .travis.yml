@@ -11,7 +11,8 @@ matrix:
     - env: EMACS_VERSION=snapshot
 cache:
   directories:
-    - .cask
+    - "${HOME}/.cask"
+    - "${HOME}/emacs/"
 before_install:
   - export PATH="${HOME}/bin:${PATH}"
   # - export EMACSCONFFLAGS='--without-all --with-x-toolkit=no --with-xml2 --without-toolkit-scroll-bars --without-ns --without-x'
