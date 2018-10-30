@@ -14,9 +14,9 @@ cache:
     - .cask
 before_install:
   - export PATH="${HOME}/bin:${PATH}"
-  - export EMACSCONFFLAGS='--without-all --with-x-toolkit=no --with-xml2 --without-toolkit-scroll-bars --without-ns --without-x'
-  - export CFLAGS='-O2 -march=native'
-  - export CXXFLAGS='-O2 -march=native'
+  # - export EMACSCONFFLAGS='--without-all --with-x-toolkit=no --with-xml2 --without-toolkit-scroll-bars --without-ns --without-x'
+  # - export CFLAGS='-O2 -march=native'
+  # - export CXXFLAGS='-O2 -march=native'
   - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
   - make -f emacs-travis.mk install_emacs
   - make -f emacs-travis.mk install_cask
