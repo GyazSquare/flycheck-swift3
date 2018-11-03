@@ -42,7 +42,7 @@
 ;; Features:
 ;;
 ;; - Apple swift-mode.el support
-;; - Apple Swift 4.1 support
+;; - Apple Swift 4.2 support
 ;;   If you use the toolchain option, you can use the old version of Swift.
 ;; - The `xcrun' command support (only on macOS)
 ;;
