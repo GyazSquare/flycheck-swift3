@@ -59,7 +59,7 @@
      '(5 18 info "protocol requires nested type 'Assoc'; do you want to add it?"
          :checker swift3)
      '(8 8 error "type 'A' does not conform to protocol 'P'" :checker swift3)
-     '(9 13 info "possibly intended match 'A.Assoc' (aka 'Int') does not conform to 'PHelper'"
+     '(9 13 info "possibly intended match 'Assoc' (aka 'Int') does not conform to 'PHelper'"
          :checker swift3))))
 
 (flycheck-ert-def-checker-test swift3 swift error-unknown
