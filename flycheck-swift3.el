@@ -1,4 +1,4 @@
-;;; flycheck-swift3.el --- Flycheck: Swift support for Apple swift-mode
+;;; flycheck-swift3.el --- Flycheck: Swift support for Apple swift-mode -*- lexical-binding: t; -*-
 
 ;; Copyright (c) 2016-2018 GyazSquare Inc.
 
