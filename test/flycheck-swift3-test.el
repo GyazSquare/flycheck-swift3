@@ -47,6 +47,7 @@
 
 (flycheck-ert-def-checker-test swift3 swift error
   (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-inputs '("A.swift")))
     (flycheck-ert-should-syntax-check
      "broken.swift" 'swift-mode
@@ -65,6 +66,7 @@
 
 (flycheck-ert-def-checker-test swift3 swift error-unknown
   (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-import-objc-header "hello-bridge-header.h"))
     (flycheck-ert-should-syntax-check
      "hello.swift" 'swift-mode
@@ -76,7 +78,8 @@
 
 (flycheck-ert-def-checker-test swift3 swift error-warning-info
   (let ((flycheck-checkers '(swift3))
-        (flycheck-swift3-inputs '("unknowable.swift")))
+        (flycheck-swift3-inputs '("unknowable.swift"))
+        (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "unknowable.swift" 'swift-mode
      '(8 3 warning "result of 'Int' initializer is unused" :checker swift3)
@@ -88,7 +91,8 @@
 
 (flycheck-ert-def-checker-test swift3 swift warning
   (let ((flycheck-checkers '(swift3))
-        (flycheck-swift3-inputs '("strange-characters.swift")))
+        (flycheck-swift3-inputs '("strange-characters.swift"))
+        (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "strange-characters.swift" 'swift-mode
      '(4 5 warning "nul character embedded in middle of file" :checker swift3)
@@ -98,7 +102,8 @@
 
 (flycheck-ert-def-checker-test swift3 swift warning-info
   (let ((flycheck-checkers '(swift3))
-        (flycheck-swift3-inputs '("diag_unreachable_after_return.swift")))
+        (flycheck-swift3-inputs '("diag_unreachable_after_return.swift"))
+        (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "diag_unreachable_after_return.swift" 'swift-mode
      '(7 3 warning "expression following 'return' is treated as an argument of the 'return'"
@@ -117,13 +122,15 @@
 (flycheck-ert-def-checker-test swift3 swift swift-version
   (let ((flycheck-checkers '(swift3))
         (flycheck-swift3-inputs '("objc-inference.swift"))
+        (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-swift-version "3"))
     (flycheck-ert-should-syntax-check
      "objc-inference.swift" 'swift-mode)))
 
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-default
   (let ((flycheck-checkers '(swift3))
-        (flycheck-swift3-inputs '("objc-inference.swift")))
+        (flycheck-swift3-inputs '("objc-inference.swift"))
+        (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "objc-inference.swift" 'swift-mode
      '(6 10 info "add '@objc' to make this declaration overridable"
@@ -134,6 +141,7 @@
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-on
   (let ((flycheck-checkers '(swift3))
         (flycheck-swift3-inputs '("objc-inference.swift"))
+        (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-swift3-objc-inference 'on))
     (flycheck-ert-should-syntax-check
      "objc-inference.swift" 'swift-mode
@@ -145,6 +153,7 @@
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-off
   (let ((flycheck-checkers '(swift3))
         (flycheck-swift3-inputs '("objc-inference.swift"))
+        (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-swift3-objc-inference 'off))
     (flycheck-ert-should-syntax-check
      "objc-inference.swift" 'swift-mode

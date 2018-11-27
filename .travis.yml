@@ -1,9 +1,9 @@
 language: emacs-lisp
 os: osx
-osx_image: xcode9.3
+osx_image: xcode10.1
 env:
-  - EMACS_VERSION=24.5
   - EMACS_VERSION=25.3
+  - EMACS_VERSION=26.1
   - EMACS_VERSION=snapshot
 matrix:
   fast_finish: true
@@ -11,12 +11,9 @@ matrix:
     - env: EMACS_VERSION=snapshot
 cache:
   directories:
-    - .cask
+    - "${HOME}/emacs/"
 before_install:
   - export PATH="${HOME}/bin:${PATH}"
-  - export EMACSCONFFLAGS='--without-all --with-x-toolkit=no --with-xml2 --without-toolkit-scroll-bars --without-ns --without-x'
-  - export CFLAGS='-O2 -march=native'
-  - export CXXFLAGS='-O2 -march=native'
   - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
   - make -f emacs-travis.mk install_emacs
   - make -f emacs-travis.mk install_cask
