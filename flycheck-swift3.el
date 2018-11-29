@@ -217,7 +217,8 @@ If `XCRUN-PATH' exists, return the swiftc version using
          (versions (seq-filter
                     (lambda (elt) (string-match "^[0-9][-.0-9A-Za-z]*$" elt))
                     version-info-list)))
-    (car versions)))
+    ;; remove "-dev" suffix if present
+    (car (split-string (car versions) "-"))))
 
 (defun flycheck-swift3--xcrun-sdk-path (xcrun-path &optional xcrun-sdk)
   "Return the swift SDK path using `${XCRUN-PATH} --sdk ${XCRUN-SDK} --show-sdk-path'."
