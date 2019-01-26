@@ -1,10 +1,10 @@
 ;;; flycheck-swift3.el --- Flycheck: Swift support for Apple swift-mode -*- lexical-binding: t; -*-
 
-;; Copyright (c) 2016-2018 GyazSquare Inc.
+;; Copyright (c) 2016-2019 GyazSquare Inc.
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 2.0.4
+;; Version: 2.0.5
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "24.4") (flycheck "26"))
 
@@ -167,7 +167,7 @@ C/C++/Objective-C compiler, via `-Xcc'."
   :type '(repeat (string :tag "Argument"))
   :safe #'flycheck-string-list-p)
 
-(flycheck-def-option-var flycheck-swift3-inputs nil swfit
+(flycheck-def-option-var flycheck-swift3-inputs nil swift
   "Specify input files to parse.
 
 When non-nil, set the input files to parse."
