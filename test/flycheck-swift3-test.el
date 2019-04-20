@@ -159,6 +159,22 @@
      '(10 19 error "overriding non-@objc declarations from extensions is not supported"
           :checker swift3))))
 
+(flycheck-ert-def-checker-test swift3 swift warn-implicit-overrides
+  (let ((flycheck-checkers '(swift3))
+        (flycheck-swift3-xcrun-sdk "macosx")
+        (flycheck-swift3-warn-implicit-overrides t))
+    (flycheck-ert-should-syntax-check
+     "warn_override.swift" 'swift-mode
+     '(2 18 info "'A' declared here" :checker swift3)
+     '(4 8 info "overridden declaration is here" :checker swift3)
+     '(6 7 info "overridden declaration is here" :checker swift3)
+     '(10 18 warning "redeclaration of associated type 'A' from protocol 'P0' is better expressed as a 'where' clause on the protocol"
+          :checker swift3)
+     '(12 8 warning "implicit override should be marked with 'override' or suppressed with '@_nonoverride'"
+          :checker swift3)
+     '(14 7 warning "implicit override should be marked with 'override' or suppressed with '@_nonoverride'"
+          :checker swift3))))
+
 (flycheck-ert-initialize flycheck-swift3-test-directory)
 
 (provide 'flycheck-swift3-test)
