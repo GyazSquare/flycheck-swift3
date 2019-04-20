@@ -15,8 +15,8 @@ cache:
 before_install:
   - export PATH="${HOME}/bin:${PATH}"
   - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
-  - make -f emacs-travis.mk install_emacs
-  - make -f emacs-travis.mk install_cask
+  - xcrun --sdk macosx make -f emacs-travis.mk install_emacs
+  - xcrun --sdk macosx make -f emacs-travis.mk install_cask
   - emacs --version
 script:
   - make test
