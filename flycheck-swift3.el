@@ -138,6 +138,16 @@ The option is available in Swift 3.1 or later."
   :type 'string
   :safe #'stringp)
 
+(flycheck-def-option-var flycheck-swift3-warn-implicit-overrides nil swift
+  "Warn about implicit overrides of protocol members.
+
+When non-nil, enable the warning via `-warn-implicit-overrides'.
+It is disabled by default.
+
+The option is available in Swift 5 or later."
+  :type 'boolean
+  :safe #'booleanp)
+
 (flycheck-def-option-var flycheck-swift3-swift3-objc-inference nil swift
   "Control how the Swift compiler infers @objc for declarations.
 
@@ -247,6 +257,8 @@ input files using `DIRECTORY' as the default directory."
                     (when swift-sdk-path `("-sdk" ,swift-sdk-path))))
             (option "-swift-version" flycheck-swift3-swift-version)
             (option "-target" flycheck-swift3-target)
+            (option-flag "-warn-implicit-overrides"
+                         flycheck-swift3-warn-implicit-overrides)
             (eval (cond ((eq flycheck-swift3-swift3-objc-inference 'on)
                          '("-enable-swift3-objc-inference"
                            "-warn-swift3-objc-inference-minimal"))
