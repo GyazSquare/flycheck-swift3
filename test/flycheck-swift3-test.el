@@ -1,6 +1,6 @@
 ;;; flycheck-swift3-test.el --- Flycheck Swift: Test cases
 
-;; Copyright (c) 2016-2018 GyazSquare Inc.
+;; Copyright (c) 2016-2019 GyazSquare Inc.
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
