@@ -1,9 +1,9 @@
 language: emacs-lisp
 os: osx
-osx_image: xcode10.2
+osx_image: xcode11.1
 env:
   - EMACS_VERSION=25.3
-  - EMACS_VERSION=26.2
+  - EMACS_VERSION=26.3
   - EMACS_VERSION=snapshot
 matrix:
   fast_finish: true
