@@ -486,7 +486,6 @@ Like flycheck-prepend-with-option, but returns nil if items is empty."
          (command
     `("swiftc"
       "-frontend"
-      "-typecheck"
       (option-list "-D" flycheck-swift3-conditional-compilation-flags)
       (option-list "-Fsystem"
                    flycheck-swift3-system-framework-search-paths)
@@ -505,9 +504,9 @@ Like flycheck-prepend-with-option, but returns nil if items is empty."
       ;; loading the project more than once during a check.
       (eval (let* ((file-name (or load-file-name buffer-file-name)))
               (flycheck-swift3--swiftc-options file-name ,xcrun-path)))
-      "-primary-file"
-      ;; Read from standard input
-      "-")))
+      ;; Read 'source' file provided by flycheck. Contains current buffer contents.
+      ;; This ensures we have a valid filename in errors (see flycheck-swift3--error-filter).
+      "-primary-file" source)))
     (if xcrun-path
         (let ((xcrun-command
                `(,xcrun-path
@@ -515,6 +514,17 @@ Like flycheck-prepend-with-option, but returns nil if items is empty."
                  (option "--toolchain" flycheck-swift3-xcrun-toolchain))))
           (append xcrun-command command))
       command)))
+
+(defun flycheck-swift3--error-filter (errors)
+  "Return filtered ERRORS.
+swiftc v5.1.2 now returns errors for all inputs, even though we
+specify a -primary-file.  We don't want to see errors for other
+files in the current buffer, so we discard them here."
+  (let* ((file-name (or load-file-name buffer-file-name)))
+    (seq-filter
+     (lambda (err)
+       (equal file-name (flycheck-error-filename err)))
+     errors)))
 
 (flycheck-define-command-checker 'swift3
   "A Swift syntax checker using Swift compiler frontend.
@@ -531,6 +541,7 @@ See URL `https://swift.org/'."
              ": " "warning: " (optional (message)) line-end)
     (error line-start (or "<stdin>" (file-name)) ":" line ":" column
            ": " "error: " (optional (message)) line-end))
+  :error-filter 'flycheck-swift3--error-filter
   :modes 'swift-mode)
 
 ;;;###autoload

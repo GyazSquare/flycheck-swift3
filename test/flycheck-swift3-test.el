@@ -71,10 +71,7 @@
     (flycheck-ert-should-syntax-check
      "hello.swift" 'swift-mode
      '(0 nil error "failed to import bridging header 'hello-bridge-header.h'"
-         :checker swift3)
-     `(1 2 error "\"error message\"" :checker swift3
-         :filename ,(expand-file-name "hello-bridge-header.h"
-                                      flycheck-swift3-test-directory)))))
+         :checker swift3))))
 
 (flycheck-ert-def-checker-test swift3 swift error-warning-info
   (let ((flycheck-checkers '(swift3))
@@ -188,14 +185,17 @@
           :checker swift3))))
 
 (flycheck-ert-def-checker-test swift3 swift swift3-all-appdelegate
+  """Verify that source files are imported from input file's directory."""
   (let ((flycheck-checkers '(swift3)))
     (flycheck-ert-should-syntax-check
+     ;; No error because we did not limit inputs to "AppDelegate.swift"
      "TestApp/TestApp/AppDelegate.swift" 'swift-mode)))
 
 (flycheck-ert-def-checker-test swift3 swift swift3-xcode-appdelegate
   (let ((flycheck-checkers '(swift3))
         (flycheck-swift3-use-xcode-project t))
     (flycheck-ert-should-syntax-check
+     ;; No error because we all source files found via Xcode project.
      "TestApp/TestApp/AppDelegate.swift" 'swift-mode)))
 
 (flycheck-ert-def-checker-test swift3 swift swift3-xcode-viewcontroller
