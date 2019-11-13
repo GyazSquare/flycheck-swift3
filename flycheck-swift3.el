@@ -1,10 +1,10 @@
 ;;; flycheck-swift3.el --- Flycheck: Swift support for Apple swift-mode -*- lexical-binding: t; -*-
 
-;; Copyright (c) 2016-2018 GyazSquare Inc.
+;; Copyright (c) 2016-2019 GyazSquare Inc.
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 2.0.4
+;; Version: 3.0.0
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "24.4") (flycheck "26"))
 
@@ -42,7 +42,7 @@
 ;; Features:
 ;;
 ;; - Apple swift-mode.el support
-;; - Apple Swift 4.2 support
+;; - Apple Swift 5 support
 ;;   If you use the toolchain option, you can use the old version of Swift.
 ;; - The `xcrun' command support (only on macOS)
 ;;
@@ -165,6 +165,16 @@ The option is available in Swift 3.1 or later."
 Xcode project."
   :type 'string
   :safe #'stringp)
+
+(flycheck-def-option-var flycheck-swift3-warn-implicit-overrides nil swift
+  "Warn about implicit overrides of protocol members.
+
+When non-nil, enable the warning via `-warn-implicit-overrides'.
+It is disabled by default.
+
+The option is available in Swift 5 or later."
+  :type 'boolean
+  :safe #'booleanp)
 
 (flycheck-def-option-var flycheck-swift3-swift3-objc-inference nil swift
   "Control how the Swift compiler infers @objc for declarations.
@@ -476,11 +486,14 @@ Like flycheck-prepend-with-option, but returns nil if items is empty."
          (command
     `("swiftc"
       "-frontend"
+      "-typecheck"
       (option-list "-D" flycheck-swift3-conditional-compilation-flags)
       (option-list "-Fsystem"
                    flycheck-swift3-system-framework-search-paths)
       (option-list "-F" flycheck-swift3-framework-search-paths)
       (option-list "-I" flycheck-swift3-import-search-paths)
+      (option-flag "-warn-implicit-overrides"
+                   flycheck-swift3-warn-implicit-overrides)
       (eval (cond ((eq flycheck-swift3-swift3-objc-inference 'on)
                    '("-enable-swift3-objc-inference"
                      "-warn-swift3-objc-inference-minimal"))
