@@ -60,7 +60,7 @@
 (require 'flycheck)
 (require 'xcode-project)
 
-(defcustom flycheck-swift3-use-xcode-project nil
+(flycheck-def-option-var flycheck-swift3-use-xcode-project nil swift
   "Specify whether to use the `xcode-project' package to parse project settings.
 
 When non-nil, project settings (SDK, compilation flags, source files etc) will
@@ -69,15 +69,13 @@ file.
 
 If nil, or no Xcode project can be found, then fall back to the `flycheck-swift3'
 defaults."
-  :group 'flycheck-swift3
   :type 'bool
   :safe #'booleanp)
 
-(defcustom flycheck-swift3-xcode-build-config "Debug"
+(flycheck-def-option-var flycheck-swift3-xcode-build-config "Debug" swift
   "Build configuration to use when extracting build settings from the
 Xcode project."
 
-  :group 'flycheck-swift3
   :type 'string
   :safe #'stringp)
 
