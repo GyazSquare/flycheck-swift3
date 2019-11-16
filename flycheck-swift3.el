@@ -115,6 +115,15 @@ When non-nil, set the name of the module to build, via
   :type 'string
   :safe #'stringp)
 
+(flycheck-def-option-var flycheck-swift3-require-explicit-availability nil swift
+  "Require explicit availability on public declarations.
+
+When non-nil, enable the warning via
+`-require-explicit-availability'.
+The option is available in Swift 5.1 or later."
+  :type 'boolean
+  :safe #'booleanp)
+
 (flycheck-def-option-var flycheck-swift3-sdk-path nil swift
   "Specify which SDK to compile against.
 
@@ -128,7 +137,6 @@ number.
 
 When non-nil, set the specific Swift language version to
 interpret input, via `-swift-version'.
-
 The option is available in Swift 3.1 or later."
   :type 'string
   :safe #'stringp)
@@ -143,7 +151,6 @@ The option is available in Swift 3.1 or later."
 
 When non-nil, enable the warning via `-warn-implicit-overrides'.
 It is disabled by default.
-
 The option is available in Swift 5 or later."
   :type 'boolean
   :safe #'booleanp)
@@ -251,6 +258,8 @@ input files using `DIRECTORY' as the default directory."
             (option-list "-F" flycheck-swift3-framework-search-paths)
             (option-list "-I" flycheck-swift3-import-search-paths)
             (option "-module-name" flycheck-swift3-module-name)
+            (option-flag "-require-explicit-availability"
+                         flycheck-swift3-require-explicit-availability)
             (eval (let ((swift-sdk-path (flycheck-swift3--swift-sdk-path
                                          ,xcrun-path
                                          flycheck-swift3-xcrun-sdk)))
