@@ -4,7 +4,7 @@
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 3.0.0
+;; Version: 3.1.0
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "24.4") (flycheck "26"))
 
@@ -42,7 +42,7 @@
 ;; Features:
 ;;
 ;; - Apple swift-mode.el support
-;; - Apple Swift 5 support
+;; - Apple Swift 5.1 support
 ;;   If you use the toolchain option, you can use the old version of Swift.
 ;; - The `xcrun' command support (only on macOS)
 ;;
@@ -139,6 +139,15 @@ When non-nil, set the name of the module to build, via
   :type 'string
   :safe #'stringp)
 
+(flycheck-def-option-var flycheck-swift3-require-explicit-availability nil swift
+  "Require explicit availability on public declarations.
+
+When non-nil, enable the warning via
+`-require-explicit-availability'.
+The option is available in Swift 5.1 or later."
+  :type 'boolean
+  :safe #'booleanp)
+
 (flycheck-def-option-var flycheck-swift3-sdk-path nil swift
   "Specify SDK path if one cannot be inferred from the current buffer's
 Xcode project.
@@ -153,7 +162,6 @@ number.
 
 When non-nil, set the specific Swift language version to
 interpret input, via `-swift-version'.
-
 The option is available in Swift 3.1 or later."
   :type 'string
   :safe #'stringp)
@@ -169,7 +177,6 @@ Xcode project."
 
 When non-nil, enable the warning via `-warn-implicit-overrides'.
 It is disabled by default.
-
 The option is available in Swift 5 or later."
   :type 'boolean
   :safe #'booleanp)
@@ -489,6 +496,8 @@ Like flycheck-prepend-with-option, but returns nil if items is empty."
                    flycheck-swift3-system-framework-search-paths)
       (option-list "-F" flycheck-swift3-framework-search-paths)
       (option-list "-I" flycheck-swift3-import-search-paths)
+      (option-flag "-require-explicit-availability"
+                   flycheck-swift3-require-explicit-availability)
       (option-flag "-warn-implicit-overrides"
                    flycheck-swift3-warn-implicit-overrides)
       (eval (cond ((eq flycheck-swift3-swift3-objc-inference 'on)

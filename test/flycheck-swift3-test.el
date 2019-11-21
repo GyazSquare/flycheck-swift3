@@ -1,6 +1,6 @@
 ;;; flycheck-swift3-test.el --- Flycheck Swift: Test cases
 
-;; Copyright (c) 2016-2018 GyazSquare Inc.
+;; Copyright (c) 2016-2019 GyazSquare Inc.
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
@@ -55,7 +55,8 @@
 
 (flycheck-ert-def-checker-test swift3 swift error-info
   (let ((flycheck-checkers '(swift3))
-        (flycheck-swift3-inputs '("A.swift")))
+        (flycheck-swift3-inputs '("A.swift"))
+        (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "A.swift" 'swift-mode
      '(5 18 info "protocol requires nested type 'Assoc'; do you want to add it?"
