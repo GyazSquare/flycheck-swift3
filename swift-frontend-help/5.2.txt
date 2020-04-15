@@ -1,0 +1,249 @@
+OVERVIEW: Swift frontend
+
+USAGE: swift -frontend
+
+MODES:
+  -dump-ast              Parse and type-check input file(s) and dump AST(s)
+  -dump-parse            Parse input file(s) and dump AST(s)
+  -dump-pcm              Dump debugging information about a precompiled Clang module
+  -dump-scope-maps <expanded-or-list-of-line:column>
+                         Parse and type-check input file(s) and dump the scope map(s)
+  -dump-type-info        Output YAML dump of fixed-size types from all imported modules
+  -dump-type-refinement-contexts
+                         Type-check input file(s) and dump type refinement contexts(s)
+  -emit-assembly         Emit assembly file(s) (-S)
+  -emit-bc               Emit LLVM BC file(s)
+  -emit-imported-modules Emit a list of the imported modules
+  -emit-ir               Emit LLVM IR file(s)
+  -emit-object           Emit object file(s) (-c)
+  -emit-pcm              Emit a precompiled Clang module from a module map
+  -emit-sibgen           Emit serialized AST + raw SIL file(s)
+  -emit-sib              Emit serialized AST + canonical SIL file(s)
+  -emit-silgen           Emit raw SIL file(s)
+  -emit-sil              Emit canonical SIL file(s)
+  -merge-modules         Merge the input modules without otherwise processing them
+  -parse                 Parse input file(s)
+  -print-ast             Parse and type-check input file(s) and pretty print AST(s)
+  -resolve-imports       Parse and resolve imports in input file(s)
+  -typecheck             Parse and type-check input file(s)
+
+OPTIONS:
+  -api-diff-data-dir <path>
+                          Load platform and version specific API migration data files from <path>. Ignored if -api-diff-data-file is specified.
+  -api-diff-data-file <path>
+                          API migration data is from <path>
+  -application-extension  Restrict code to those available for App Extensions
+  -assert-config <value>  Specify the assert_configuration replacement. Possible values are Debug, Release, Unchecked, DisableReplacement.
+  -autolink-library <value>
+                          Add dependent library
+  -color-diagnostics      Print diagnostics in color
+  -continue-building-after-errors
+                          Continue building, even after errors are encountered
+  -crosscheck-unqualified-lookup
+                          Compare legacy DeclContext- to ASTScope-based unqualified name lookup (for debugging)
+  -debug-info-format=<value>
+                          Specify the debug info format type to either 'dwarf' or 'codeview'
+  -debug-info-store-invocation
+                          Emit the compiler invocation in the debug info.
+  -debug-prefix-map <value>
+                          Remap source paths in debug info
+  -diagnostic-documentation-path <path>
+                          Path to diagnostic documentation resources
+  -disable-astscope-lookup
+                          Disable ASTScope-based unqualified name lookup
+  -disable-autolinking-runtime-compatibility-dynamic-replacements
+                          Do not use autolinking for the dynamic replacement runtime compatibility library
+  -disable-autolinking-runtime-compatibility
+                          Do not use autolinking for runtime compatibility libraries
+  -disable-migrator-fixits
+                          Disable the Migrator phase which automatically applies fix-its
+  -disable-parser-lookup  Disable parser lookup & use ast scope lookup only (experimental)
+  -disable-serialization-nested-type-lookup-table
+                          Force module merging to use regular lookups to find nested types
+  -disable-target-os-checking
+                          Disable checking the target OS of serialized modules
+  -disable-testable-attr-requires-testable-module
+                          Disable checking of @testable
+  -disable-typo-correction
+                          Disable typo correction
+  -dump-migration-states-dir <path>
+                          Dump the input text, output text, and states for migration to <path>
+  -dump-usr               Dump USR for each declaration reference
+  -D <value>              Marks a conditional compilation flag as true
+  -embed-bitcode-marker   Embed placeholder LLVM IR data as a marker
+  -embed-bitcode          Embed LLVM IR bitcode as data
+  -emit-compiled-source-path <path>
+                          Output compiled source to <path>
+  -emit-compiled-source   Emit compiled source
+  -emit-dependencies-path <path>
+                          Output basic Make-compatible dependencies file to <path>
+  -emit-dependencies      Emit basic Make-compatible dependencies files
+  -emit-fixits-path <path>
+                          Output compiler fixits as source edits to <path>
+  -emit-loaded-module-trace-path <path>
+                          Emit the loaded module trace JSON to <path>
+  -emit-loaded-module-trace
+                          Emit a JSON file containing information about what modules were loaded
+  -emit-migrated-file-path <path>
+                          Emit the migrated source file to <path>
+  -emit-module-doc-path <path>
+                          Output module documentation file <path>
+  -emit-module-doc        Emit a module documentation file based on documentation comments
+  -emit-module-interface-path <path>
+                          Output module interface file to <path>
+  -emit-module-path <path>
+                          Emit an importable module to <path>
+  -emit-module-source-info-path <path>
+                          Output module source info file to <path>
+  -emit-module-source-info
+                          Output module source info file
+  -emit-module            Emit an importable module
+  -emit-objc-header-path <path>
+                          Emit an Objective-C header file to <path>
+  -emit-objc-header       Emit an Objective-C header file
+  -emit-reference-dependencies-path <path>
+                          Output Swift-style dependencies file to <path>
+  -emit-reference-dependencies
+                          Emit a Swift-style dependencies file
+  -emit-remap-file-path <path>
+                          Emit the replacement map describing Swift Migrator changes to <path>
+  -emit-swift-ranges-path <path>
+                          Output unparsed ranges to <path>
+  -emit-swift-ranges      Emit unparsed source ranges
+  -emit-tbd-path <path>   Emit the TBD file to <path>
+  -emit-tbd               Emit a TBD file
+  -enable-astscope-lookup Enable ASTScope-based unqualified name lookup
+  -enable-descriptive-diagnostics
+                          Show descriptive diagnostic information, if available.
+  -enable-experimental-concise-pound-file
+                          Enable experimental concise '#file' identifier and '#filePath' alternative
+  -enable-experimental-differentiable-programming
+                          Enable experimental differentiable programming features
+  -enable-library-evolution
+                          Build the module to allow binary-compatible library evolution
+  -enable-swiftcall       Enable the use of LLVM swiftcall support
+  -enable-target-os-checking
+                          Enable checking the target OS of serialized modules
+  -enable-testable-attr-requires-testable-module
+                          Enable checking of @testable
+  -enforce-exclusivity=<enforcement>
+                          Enforce law of exclusivity
+  -filelist <value>       Specify source inputs in a file rather than on the command line
+  -fixit-all              Apply all fixits from diagnostics without any filtering
+  -framework <value>      Specifies a framework which should be linked against
+  -Fsystem <value>        Add directory to system framework search path
+  -F <value>              Add directory to framework search path
+  -gdwarf-types           Emit full DWARF type info.
+  -gline-tables-only      Emit minimal debug info for backtraces only
+  -gnone                  Don't emit debug info
+  -g                      Emit debug info. This is the preferred setting for debugging with LLDB.
+  -help                   Display available options
+  -ignore-module-source-info
+                          Avoid getting source location from .swiftsourceinfo files
+  -import-underlying-module
+                          Implicitly imports the Objective-C half of a module
+  -index-store-path <path>
+                          Store indexing data to <path>
+  -I <value>              Add directory to the import search path
+  -lazy-astscopes         Build ASTScopes lazily
+  -L <value>              Add directory to library link search path
+  -l<value>               Specifies a library which should be linked against
+  -migrate-keep-objc-visibility
+                          When migrating, add '@objc' to declarations that would've been implicitly visible in Swift 3
+  -migrator-update-sdk    Does nothing. Temporary compatibility flag for Xcode.
+  -migrator-update-swift  Does nothing. Temporary compatibility flag for Xcode.
+  -module-cache-path <value>
+                          Specifies the Clang module cache path
+  -module-link-name <value>
+                          Library to link against when using this module
+  -module-name <value>    Name of the module to build
+  -no-color-diagnostics   Do not print diagnostics in color
+  -no-serialize-debugging-options
+                          Never serialize options for debugging (default: only for apps)
+  -nostdimport            Don't search the standard library import path for modules
+  -num-threads <n>        Enable multi-threading and specify number of threads
+  -Onone                  Compile without any optimization
+  -Osize                  Compile with optimizations and target small code size
+  -Ounchecked             Compile with optimizations and remove runtime safety checks
+  -output-filelist <value>
+                          Specify outputs in a file rather than on the command line
+  -O                      Compile with optimizations
+  -o <file>               Write output to <file>
+  -parse-as-library       Parse the input file(s) as libraries, not scripts
+  -parse-sil              Parse the input file as SIL code, not Swift source
+  -primary-filelist <value>
+                          Specify primary inputs in a file rather than on the command line
+  -primary-file <value>   Produce output for this file, not the whole module
+  -print-clang-stats      Print Clang importer statistics
+  -print-target-info      Print target information for the given target <triple>, such as x86_64-apple-macos10.9
+  -profile-coverage-mapping
+                          Generate coverage data for use with profiled execution counts
+  -profile-generate       Generate instrumented code to collect execution counts
+  -profile-use=<profdata> Supply a profdata file to enable profile-guided optimization
+  -remove-runtime-asserts Remove runtime safety checks.
+  -require-explicit-availability-target <target>
+                          Suggest fix-its adding @available(<target>, *) to public declarations without availability
+  -require-explicit-availability
+                          Require explicit availability on public declarations
+  -Rpass-missed=<value>   Report missed transformations by optimization passes whose name matches the given POSIX regular expression
+  -Rpass=<value>          Report performed transformations by optimization passes whose name matches the given POSIX regular expression
+  -runtime-compatibility-version <value>
+                          Link compatibility library for Swift runtime version, or 'none'
+  -sanitize-coverage=<type>
+                          Specify the type of coverage instrumentation for Sanitizers and additional options separated by commas
+  -sanitize-recover=<check>
+                          Specify which sanitizer runtime checks (see -sanitize=) will generate instrumentation that allows error recovery. Listed checks should be comma separated. Default behavior is to not allow error recovery.
+  -sanitize=<check>       Turn on runtime checks for erroneous behavior.
+  -save-optimization-record-path <value>
+                          Specify the file name of any generated YAML optimization record
+  -save-optimization-record
+                          Generate a YAML optimization record file
+  -sdk <sdk>              Compile against <sdk>
+  -serialize-debugging-options
+                          Always serialize options for debugging (default: only for apps)
+  -serialize-diagnostics-path <path>
+                          Emit a serialized diagnostics file to <path>
+  -serialize-diagnostics  Serialize diagnostics in a binary format
+  -show-diagnostics-after-fatal
+                          Keep emitting subsequent diagnostics after a fatal error
+  -static                 Make this module statically linkable and make the output of -emit-library a static library.
+  -stress-astscope-lookup Stress ASTScope-based unqualified name lookup (for testing)
+  -supplementary-output-file-map <value>
+                          Specify supplementary outputs in a file rather than on the command line
+  -suppress-warnings      Suppress all warnings
+  -swift-version <vers>   Interpret input according to a specific Swift language version number
+  -target-cpu <value>     Generate code for a particular CPU variant
+  -target-variant <value> Generate code that may run on a particular variant of the  deployment target
+  -target <triple>        Generate code for the given target <triple>, such as x86_64-apple-macos10.9
+  -tbd-compatibility-version <version>
+                          The compatibility_version to use in an emitted TBD file
+  -tbd-current-version <version>
+                          The current_version to use in an emitted TBD file
+  -tbd-install_name <path>
+                          The install_name to use in an emitted TBD file
+  -tbd-is-installapi      If the TBD file should indicate it's being generated during InstallAPI
+  -tools-directory <directory>
+                          Look for external executables (ld, clang, binutils) in <directory>
+  -track-system-dependencies
+                          Track system dependencies while emitting Make-style dependencies
+  -use-clang-function-types
+                          Use stored Clang function types for computing canonical types.
+  -verify-apply-fixes     Like -verify, but updates the original source file
+  -verify-generic-signatures <module-name>
+                          Verify the generic signatures in the given module
+  -verify-ignore-unknown  Allow diagnostics for '<unknown>' location in verify mode
+  -verify-syntax-tree     Verify that no unknown nodes exist in the libSyntax tree
+  -verify                 Verify diagnostics against expected-{error|warning|note} annotations
+  -vfsoverlay <value>     Add directory to VFS overlay file
+  -warn-if-astscope-lookup
+                          Print a warning if ASTScope lookup is used
+  -warn-implicit-overrides
+                          Warn about implicit overrides of protocol members
+  -warn-swift3-objc-inference-complete
+                          Warn about deprecated @objc inference in Swift 3 for every declaration that will no longer be inferred as @objc in Swift 4
+  -warn-swift3-objc-inference-minimal
+                          Warn about deprecated @objc inference in Swift 3 based on direct uses of the Objective-C entrypoint
+  -warnings-as-errors     Treat warnings as errors
+  -whole-module-optimization
+                          Optimize input files together instead of individually
+  -Xcc <arg>              Pass <arg> to the C/C++/Objective-C compiler
