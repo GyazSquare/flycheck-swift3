@@ -51,7 +51,7 @@
         (flycheck-swift3-inputs '("A.swift")))
     (flycheck-ert-should-syntax-check
      "broken.swift" 'swift-mode
-     '(1 11 error "use of undeclared type 'X'" :checker swift3))))
+     '(1 11 error "cannot find type 'X' in scope" :checker swift3))))
 
 (flycheck-ert-def-checker-test swift3 swift error-info
   (let ((flycheck-checkers '(swift3))

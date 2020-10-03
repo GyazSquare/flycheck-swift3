@@ -1,1 +1,1 @@
-extension X : P { } // expected-error{{type 'X' does not conform to protocol 'P'}}
+extension X : P { } // expected-error{{cannot find type 'X' in scope}}
