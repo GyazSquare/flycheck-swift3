@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MELPA](https://melpa.org/packages/flycheck-swift3-badge.svg)](https://melpa.org/#/flycheck-swift3)
 [![MELPA Stable](https://stable.melpa.org/packages/flycheck-swift3-badge.svg)](https://stable.melpa.org/#/flycheck-swift3)
-[![Build Status](https://api.travis-ci.org/GyazSquare/flycheck-swift3.svg?branch=master)](https://travis-ci.org/GyazSquare/flycheck-swift3)
+[![Build Status](https://api.travis-ci.com/GyazSquare/flycheck-swift3.svg?branch=master)](https://travis-ci.com/GyazSquare/flycheck-swift3)
 
 A Swift syntax checker using Swift compiler frontend.
 
