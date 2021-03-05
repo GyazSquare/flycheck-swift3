@@ -1,5 +1,7 @@
-
 # Created by https://www.gitignore.io/api/macos,elisp
+
+# Tests
+test/swift-mode.el
 
 ### macOS ###
 *.DS_Store
