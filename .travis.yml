@@ -1,4 +1,4 @@
-language: emacs-lisp
+language: swift
 os: osx
 osx_image: xcode12.5
 env:
