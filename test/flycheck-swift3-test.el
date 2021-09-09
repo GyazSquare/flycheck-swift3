@@ -47,7 +47,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift error
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-inputs '("A.swift")))
     (flycheck-ert-should-syntax-check
@@ -56,7 +55,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift error-info
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "A.swift" 'swift-mode
@@ -68,7 +66,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift error-unknown
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-import-objc-header "hello-bridge-header.h"))
     (flycheck-ert-should-syntax-check
@@ -81,7 +78,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift error-warning-info
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "unknowable.swift" 'swift-mode
@@ -94,7 +90,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift warning
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "strange-characters.swift" 'swift-mode
@@ -105,7 +100,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift warning-info
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "diag_unreachable_after_return.swift" 'swift-mode
@@ -124,7 +118,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift swift-version
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-swift-version "3"))
     (flycheck-ert-should-syntax-check
@@ -137,7 +130,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-default
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx"))
     (flycheck-ert-should-syntax-check
      "objc-inference.swift" 'swift-mode
@@ -148,7 +140,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-on
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-swift3-objc-inference 'on))
     (flycheck-ert-should-syntax-check
@@ -160,7 +151,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-off
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-swift3-objc-inference 'off))
     (flycheck-ert-should-syntax-check
@@ -172,7 +162,6 @@
 
 (flycheck-ert-def-checker-test swift3 swift warn-implicit-overrides
   (let ((flycheck-checkers '(swift3))
-        (flycheck-ert-checker-wait-time 60)
         (flycheck-swift3-xcrun-sdk "macosx")
         (flycheck-swift3-warn-implicit-overrides t))
     (flycheck-ert-should-syntax-check
@@ -194,6 +183,7 @@
 ;; Local Variables:
 ;; coding: utf-8
 ;; indent-tabs-mode: nil
+;; flycheck-ert-checker-wait-time: 300
 ;; End:
 
 ;;; flycheck-swift3-test.el ends here
