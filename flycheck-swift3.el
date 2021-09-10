@@ -1,10 +1,10 @@
 ;;; flycheck-swift3.el --- Flycheck: Swift support for Apple swift-mode -*- lexical-binding: t; -*-
 
-;; Copyright (c) 2016-2020 GyazSquare Inc.
+;; Copyright (c) 2016-2021 GyazSquare Inc.
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 3.1.1
+;; Version: 3.1.2
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "24.4") (flycheck "26"))
 
