@@ -1,18 +1,30 @@
-language: swift
+###
+### language
+###
+
+# travis-lint no longer permits this value
+# language: emacs-lisp
+
 os: osx
 osx_image: xcode12.5
+
+# Emacs fails to build in container-based builds on Travis
+# See https://github.com/travis-ci/travis-ci/issues/9061
+# and https://github.com/moby/moby/issues/22801
+sudo: required
+dist: trusty
+cache:
+  - directories:
+      - "$HOME/emacs/"
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: EMACS_VERSION=snapshot
 env:
   # - EMACS_VERSION=25.3
   # - EMACS_VERSION=26.3
   - EMACS_VERSION=27.2
   - EMACS_VERSION=snapshot
-matrix:
-  fast_finish: true
-  allow_failures:
-    - env: EMACS_VERSION=snapshot
-cache:
-  directories:
-    - "${HOME}/emacs/"
 before_install:
   - export PATH="${HOME}/bin:${PATH}"
   - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
@@ -21,6 +33,8 @@ before_install:
   - make -f emacs-travis.mk install_emacs
   - make -f emacs-travis.mk install_cask
   - emacs --version
+install:
+  - cask install
 script:
   - make test
 notifications:
