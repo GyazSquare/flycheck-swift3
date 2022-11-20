@@ -191,6 +191,18 @@ When non-nil, set the input files to parse."
   :type '(repeat (string :tag "Input file"))
   :safe #'flycheck-string-list-p)
 
+(defun flycheck-swift3--swift-frontend-name (xcrun-path)
+  "Return the swift-frontend command name.
+
+If `XCRUN-PATH' is non nil, return the swift-frontend command name using `${XCRUN-PATH} --find swiftc'.  If it is nil, returns `swiftc' if the `swiftc' command exists, nil otherwise."
+  (let ((swiftc-path
+         (if xcrun-path
+             (let ((command (mapconcat #'identity `(,xcrun-path "--find" "swiftc" "2>/dev/null") " ")))
+               (string-trim (shell-command-to-string command)))
+           (executable-find "swiftc"))))
+    (if (string-empty-p swiftc-path) nil
+      (file-name-nondirectory (file-truename swiftc-path)))))
+
 (defun flycheck-swift3--swiftc-version (xcrun-path)
   "Return the swiftc version.
 
