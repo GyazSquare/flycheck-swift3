@@ -194,24 +194,34 @@ When non-nil, set the input files to parse."
 (defun flycheck-swift3--swift-frontend-name (xcrun-path)
   "Return the swift-frontend command name.
 
-If `XCRUN-PATH' is non nil, return the swift-frontend command name using `${XCRUN-PATH} --find swiftc'.  If it is nil, returns `swiftc' if the `swiftc' command exists, nil otherwise."
+If `XCRUN-PATH' is not nil, return the swift-frontend command
+truename using `${XCRUN-PATH} --find swiftc'.  If `XCRUN-PATH' is
+nil, returns `swiftc' if the `swiftc' command exists, nil
+otherwise."
   (let ((swiftc-path
          (if xcrun-path
-             (let ((command (mapconcat #'identity `(,xcrun-path "--find" "swiftc" "2>/dev/null") " ")))
+             (let ((command
+                    (mapconcat
+                     #'identity
+                     `(,xcrun-path "--find" "swiftc" "2>/dev/null") " ")))
                (string-trim (shell-command-to-string command)))
            (executable-find "swiftc"))))
-    (if (string-empty-p swiftc-path) nil
+    (if (or (null swiftc-path) (string-empty-p swiftc-path)) nil
       (file-name-nondirectory (file-truename swiftc-path)))))
 
-(defun flycheck-swift3--swiftc-version (xcrun-path)
-  "Return the swiftc version.
+(defun flycheck-swift3--swift-frontend-version (xcrun-path)
+  "Return the swift-frontend version.
 
-If `XCRUN-PATH' exists, return the swiftc version using
-`'${XCRUN-PATH} swiftc --version'."
-  (let* ((command
-          (if xcrun-path
-              (mapconcat #'identity `(,xcrun-path "swiftc" "--version") " ")
-            (mapconcat #'identity `("swiftc" "--version") " ")))
+If `XCRUN-PATH' exists, return the swift-frontend version using
+`'${XCRUN-PATH} swift-frontend -frontend -version'."
+  (let* ((swift-frontend-name (flycheck-swift3--swift-frontend-name xcrun-path))
+         (tool-list
+          (if (not (null swift-frontend-name))
+              (if (equal swift-frontend-name "swiftc") `("swiftc" "-version")
+                `(,swift-frontend-name "-frontend" "-version"))))
+         (command-list
+          (if (not (null xcrun-path)) (cons xcrun-path tool-list) tool-list))
+         (command (mapconcat #'identity command-list " "))
          (version-info-list (delete "" (split-string
                                         (shell-command-to-string command)
                                         "[ \f\t\n\r\v():]+")))
@@ -258,11 +268,13 @@ input files using `DIRECTORY' as the default directory."
 (defun flycheck-swift3--syntax-checking-command ()
   "Return the command to run for Swift syntax checking."
   (let* ((xcrun-path (executable-find "xcrun"))
+         (swift-frontend-name (flycheck-swift3--swift-frontend-name xcrun-path))
          (command
-          `("swiftc"
+          `(,swift-frontend-name
             "-frontend"
             (eval (if (version<
-                       (flycheck-swift3--swiftc-version ,xcrun-path) "3.1")
+                       (flycheck-swift3--swift-frontend-version ,xcrun-path)
+                       "3.1")
                       "-parse" "-typecheck"))
             (option-list "-D" flycheck-swift3-conditional-compilation-flags)
             (option-list "-Fsystem"
