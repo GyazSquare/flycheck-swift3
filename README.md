@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MELPA](https://melpa.org/packages/flycheck-swift3-badge.svg)](https://melpa.org/#/flycheck-swift3)
 [![MELPA Stable](https://stable.melpa.org/packages/flycheck-swift3-badge.svg)](https://stable.melpa.org/#/flycheck-swift3)
-[![Build Status](https://api.travis-ci.com/GyazSquare/flycheck-swift3.svg?branch=master)](https://travis-ci.com/GyazSquare/flycheck-swift3)
+[![Build Status](https://github.com/GyazSquare/flycheck-swift3/actions/workflows/test.yml/badge.svg)](https://github.com/GyazSquare/flycheck-swift3/actions/workflows/test.yml)
 
 A Swift syntax checker using Swift compiler frontend.
 
@@ -12,7 +12,7 @@ Flycheck-swift3 is designed to work with Apple [swift-mode.el](https://github.co
 ## Features
 
 * Apple [swift-mode.el](https://github.com/apple/swift/blob/master/utils/swift-mode.el) support
-* Apple Swift 5.4 support  
+* Apple Swift 5 support  
   If you use the toolchain option, you can use the old version of Swift.
 * The `xcrun` command support (only on macOS)
 
