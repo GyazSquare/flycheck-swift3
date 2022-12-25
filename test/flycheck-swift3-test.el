@@ -132,7 +132,7 @@
      '(0 nil error "invalid value '3' in '-swift-version 3'" :checker swift3)
      '(6 10 info "add '@objc' to make this declaration overridable"
          :checker swift3)
-     '(10 19 error "overriding non-@objc declarations from extensions is not supported"
+     '(10 19 error "non-@objc instance method 'extMethod()' is declared in extension of 'MySuperclass' and cannot be overridden"
           :checker swift3))))
 
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-default
@@ -143,7 +143,7 @@
      "objc-inference.swift" 'swift-mode
      '(6 10 info "add '@objc' to make this declaration overridable"
          :checker swift3)
-     '(10 19 error "overriding non-@objc declarations from extensions is not supported"
+     '(10 19 error "non-@objc instance method 'extMethod()' is declared in extension of 'MySuperclass' and cannot be overridden"
           :checker swift3))))
 
 (flycheck-ert-def-checker-test swift3 swift swift3-objc-inference-on
@@ -167,7 +167,7 @@
      "objc-inference.swift" 'swift-mode
      '(6 10 info "add '@objc' to make this declaration overridable"
          :checker swift3)
-     '(10 19 error "overriding non-@objc declarations from extensions is not supported"
+     '(10 19 error "non-@objc instance method 'extMethod()' is declared in extension of 'MySuperclass' and cannot be overridden"
           :checker swift3))))
 
 (flycheck-ert-def-checker-test swift3 swift warn-implicit-overrides
