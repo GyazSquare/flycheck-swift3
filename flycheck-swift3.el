@@ -6,7 +6,7 @@
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
 ;; Version: 3.1.2
 ;; Keywords: convenience, languages, tools
-;; Package-Requires: ((emacs "24.4") (flycheck "26"))
+;; Package-Requires: ((emacs "25.1") (flycheck "26"))
 
 ;; This file is not part of GNU Emacs.
 
