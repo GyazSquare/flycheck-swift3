@@ -1,0 +1,41 @@
+name: CI
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: macos-12
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: true
+      matrix:
+        emacs_version:
+          - 28.2
+        experimental:
+          - false
+        include:
+          - emacs_version: snapshot
+            experimental: true
+    steps:
+      - name: Set up emacs
+        uses: purcell/setup-emacs@master
+        with:
+          version: ${{ matrix.emacs_version }}
+      - name: Output emacs version
+        run: |
+          emacs --version
+      - name: Set up cask
+        uses: cask/setup-cask@master
+        with:
+          version: 0.8.8
+      - name: Output cask version
+        run: |
+          cask --version
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install all packages specified in the Cask-file
+        run: |
+          cask install
+      - name: Run tests
+        run: |
+          make test
