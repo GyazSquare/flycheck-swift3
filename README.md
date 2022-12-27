@@ -12,7 +12,7 @@ Flycheck-swift3 is designed to work with Apple [swift-mode.el](https://github.co
 ## Features
 
 * Apple [swift-mode.el](https://github.com/apple/swift/blob/master/utils/swift-mode.el) support
-* Apple Swift 5 support  
+* Apple Swift 5.7 support  
   If you use the toolchain option, you can use the old version of Swift.
 * The `xcrun` command support (only on macOS)
 
