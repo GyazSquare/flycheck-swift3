@@ -4,7 +4,7 @@
 
 ;; Author: Goichi Hirakawa <gooichi@gyazsquare.com>
 ;; URL: https://github.com/GyazSquare/flycheck-swift3
-;; Version: 3.1.2
+;; Version: 3.2.0
 ;; Keywords: convenience, languages, tools
 ;; Package-Requires: ((emacs "25.1") (flycheck "26"))
 
@@ -42,7 +42,7 @@
 ;; Features:
 ;;
 ;; - Apple swift-mode.el support
-;; - Apple Swift 5.4 support
+;; - Apple Swift 5.7 support
 ;;   If you use the toolchain option, you can use the old version of Swift.
 ;; - The `xcrun' command support (only on macOS)
 ;;
